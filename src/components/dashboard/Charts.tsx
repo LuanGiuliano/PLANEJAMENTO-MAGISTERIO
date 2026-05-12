@@ -1,105 +1,144 @@
 import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, CartesianGrid,
+  PieChart, Pie, Cell, CartesianGrid,
 } from "recharts";
-import { conformidadeModalidade, vinculoDispersao, distribuicaoGeral } from "@/lib/mockData";
 
 const tooltipStyle = {
-  contentStyle: {
-    background: "rgba(10,25,47,0.95)",
-    border: "1px solid rgba(245,197,66,0.4)",
-    borderRadius: 8,
-    color: "#fff",
-  },
-  labelStyle: { color: "#f5c542" },
+  contentStyle: { background: "#102A43", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "#F5F7FA", fontSize: "12px", fontWeight: 600 },
+  labelStyle: { color: "#F4A300", fontWeight: "bold", marginBottom: "4px" },
 };
 
 function ChartCard({ title, subtitle, children, delay = 0, className = "" }: {
-  title: string; subtitle?: string; children: React.ReactNode; delay?: number; className?: string;
+  title?: string; subtitle?: string; children: React.ReactNode; delay?: number; className?: string;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      className={`glass rounded-xl p-5 ${className}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay, duration: 0.4 }}
+      className={`bg-[#132F4C] border border-white/5 rounded-xl p-6 shadow-sm ${className}`}
     >
-      <div className="mb-4">
-        <h3 className="text-base font-semibold text-white">{title}</h3>
-        {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
-      </div>
+      {(title || subtitle) && (
+        <div className="mb-6 border-b border-white/5 pb-4">
+          {title && <h3 className="text-sm font-bold text-[#F5F7FA] uppercase tracking-wide">{title}</h3>}
+          {subtitle && <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1">{subtitle}</p>}
+        </div>
+      )}
       {children}
     </motion.div>
   );
 }
 
-export function ConformidadeChart() {
+export function ConformidadeChart({ data }: { data?: any }) {
+  if (!data || !data.percentual) return null;
+  const pctNum = parseFloat(data.percentual);
+  const atingiuMeta = pctNum >= 61;
+
   return (
-    <ChartCard title="Conformidade por Modalidade" subtitle="% de adequação por programa" delay={0.1} className="lg:col-span-2">
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={conformidadeModalidade} layout="vertical" margin={{ left: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-          <XAxis type="number" domain={[0, 100]} stroke="#64748b" fontSize={11} />
-          <YAxis dataKey="modalidade" type="category" stroke="#94a3b8" fontSize={11} width={120} />
-          <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(245,197,66,0.05)" }} />
-          <Bar dataKey="conformidade" fill="#f5c542" radius={[0, 6, 6, 0]} animationDuration={900} />
+    <ChartCard delay={0.1} className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-[#102A43] to-[#081C2E]">
+      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#F4A300]"></div>
+      
+      <div className="flex flex-col mb-8 pl-2">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="bg-[#132F4C] border border-white/10 text-[#F4A300] text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-widest shadow-sm">Objetivo 3.3</span>
+        </div>
+        <h3 className="text-base font-bold text-[#F5F7FA]">Concentração de Carga Horária Docente</h3>
+      </div>
+      
+      <div className="flex items-end justify-between py-2 mb-5 pl-2">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Desempenho Atual</span>
+          <span className={`text-6xl font-black leading-none tracking-tighter ${atingiuMeta ? 'text-[#008F72]' : 'text-[#F4A300]'}`}>
+            {data.percentual}%
+          </span>
+        </div>
+        <div className="flex flex-col items-end pb-1 pr-2">
+           <span className="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Meta Institucional</span>
+           <span className="text-2xl font-bold text-[#F5F7FA]">61%</span>
+        </div>
+      </div>
+
+      <div className="w-full bg-[#081C2E] rounded h-3 mb-8 relative border border-white/5 ml-2 w-[calc(100%-8px)] overflow-hidden">
+        <div className={`absolute top-0 left-0 h-full ${atingiuMeta ? 'bg-[#008F72]' : 'bg-[#F4A300]'} transition-all duration-1000`} style={{ width: `${pctNum}%` }}></div>
+        <div className="absolute top-0 h-full w-0.5 bg-[#F5F7FA] z-10 shadow-[0_0_5px_rgba(255,255,255,0.5)]" style={{ left: '61%' }}></div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-3 text-center mt-2 pl-2">
+        {[
+          { label: '1 Escola', val: data.q1 },
+          { label: '2 Escolas', val: data.q2 },
+          { label: '3 Escolas', val: data.q3 },
+          { label: '4+ Escolas', val: data.q4 }
+        ].map((item, i) => (
+          <div key={i} className="bg-white/5 border border-white/5 rounded-lg p-3">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{item.label}</div>
+            <div className="text-sm font-bold text-[#F5F7FA]">{item.val.toLocaleString('pt-BR')}</div>
+          </div>
+        ))}
+      </div>
+    </ChartCard>
+  );
+}
+
+export function VinculoChart({ data = [] }: { data?: any[] }) {
+  return (
+    <ChartCard title="Dispersão Geográfica" subtitle="Alocação por Região de Integração (RI)" delay={0.2} className="lg:col-span-2">
+      <ResponsiveContainer width="100%" height={260}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+          <XAxis dataKey="ri" stroke="#64748b" fontSize={9} interval={0} tick={{fill: '#94a3b8'}} tickMargin={8} axisLine={false} tickLine={false} />
+          <YAxis stroke="#64748b" fontSize={10} tickFormatter={(val) => val.toLocaleString('pt-BR')} axisLine={false} tickLine={false} />
+          <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.02)" }} />
+          <Bar dataKey="quantidade" fill="#F4A300" radius={[2, 2, 0, 0]} animationDuration={900} barSize={24} />
         </BarChart>
       </ResponsiveContainer>
     </ChartCard>
   );
 }
 
-export function VinculoChart() {
-  return (
-    <ChartCard title="Vínculo vs Dispersão de Escolas" subtitle="Distribuição por nº de escolas" delay={0.2} className="lg:col-span-2">
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={vinculoDispersao}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="vinculo" stroke="#94a3b8" fontSize={11} />
-          <YAxis stroke="#64748b" fontSize={11} />
-          <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(245,197,66,0.05)" }} />
-          <Legend wrapperStyle={{ fontSize: 12, color: "#94a3b8" }} />
-          <Bar dataKey="umaEscola" name="1 escola" stackId="a" fill="#f5c542" animationDuration={900} />
-          <Bar dataKey="duasEscolas" name="2 escolas" stackId="a" fill="#60a5fa" animationDuration={900} />
-          <Bar dataKey="tresOuMais" name="3+ escolas" stackId="a" fill="#f87171" radius={[6, 6, 0, 0]} animationDuration={900} />
-        </BarChart>
-      </ResponsiveContainer>
-    </ChartCard>
-  );
-}
+export function DistribuicaoChart({ data = [] }: { data?: any[] }) {
+  const total = data.reduce((s: number, d: any) => s + (d.value || 0), 0);
+  const efetivos = data.find(d => d.name === 'Efetivo')?.value || 0;
+  const efetivosPct = total > 0 ? ((efetivos / total) * 100).toFixed(0) : "0";
 
-export function DistribuicaoChart() {
-  const total = distribuicaoGeral.reduce((s, d) => s + d.value, 0);
-  const efetivosPct = ((distribuicaoGeral[0].value / total) * 100).toFixed(0);
+  const formattedData = data.map(d => ({
+    ...d,
+    color: d.name === 'Efetivo' ? '#008F72' : d.name === 'Contratado' ? '#F4A300' : '#475569'
+  }));
+
   return (
-    <ChartCard title="Distribuição Geral" subtitle="Por tipo de vínculo" delay={0.3}>
+    <ChartCard title="Quadro de Servidores" subtitle="Distribuição de Vínculos" delay={0.3}>
       <div className="relative">
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={230}>
           <PieChart>
             <Pie
-              data={distribuicaoGeral}
+              data={formattedData}
               dataKey="value"
-              innerRadius={70}
-              outerRadius={105}
-              paddingAngle={3}
+              innerRadius={75}
+              outerRadius={95}
+              paddingAngle={2}
+              stroke="none"
               animationDuration={900}
             >
-              {distribuicaoGeral.map((d) => <Cell key={d.name} fill={d.color} stroke="none" />)}
+              {formattedData.map((d: any, index: number) => <Cell key={index} fill={d.color} />)}
             </Pie>
             <Tooltip {...tooltipStyle} />
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-semibold text-white">{efetivosPct}%</span>
-          <span className="text-xs text-slate-400">Efetivos</span>
+          <span className="text-3xl font-black text-[#F5F7FA]">{efetivosPct}%</span>
+          <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Efetivos</span>
         </div>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-        {distribuicaoGeral.map((d) => (
-          <div key={d.name} className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
-            <span className="text-slate-300">{d.name}</span>
+      <div className="mt-5 flex flex-col gap-2.5 px-2">
+        {formattedData.map((d: any, index: number) => (
+          <div key={index} className="flex items-center justify-between border-t border-white/5 pt-2 first:border-0 first:pt-0">
+            <div className="flex items-center gap-2.5">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: d.color }} />
+              <span className="text-xs font-bold text-[#F5F7FA] uppercase">{d.name}</span>
+            </div>
+            <span className="text-xs font-bold text-slate-400">{d.value.toLocaleString('pt-BR')}</span>
           </div>
         ))}
       </div>
