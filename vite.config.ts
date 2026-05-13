@@ -1,26 +1,30 @@
 // vite.config.ts
-// Fix: manualChunks só se aplica ao ambiente client (não ao SSR)
-// O ambiente SSR trata react/react-dom como externos — não podem ir no manualChunks
+// Desabilita SSR completamente — serve como SPA pura no Vercel.
+// É a solução mais simples e estável para este caso de uso (dashboard C-Level).
+// O SSR não agrega valor aqui pois os dados vêm de CSV via fetch no cliente.
 
 import { defineConfig } from '@lovable.dev/vite-tanstack-config'
 
 export default defineConfig({
-  // Desativa o @cloudflare/vite-plugin para deploy no Vercel
+  // Desativa Cloudflare (incompatível com Vercel)
   cloudflare: false,
+
+  // Passa configuração direta para o TanStack Start
+  tanstackStart: {
+    // Desabilita o bundle SSR — só gera dist/client/
+    ssr: false,
+  },
 
   vite: {
     build: {
       chunkSizeWarningLimit: 1000,
     },
-
     environments: {
-      // Configuração de chunks APENAS para o ambiente client
       client: {
         build: {
           rollupOptions: {
             output: {
               manualChunks: {
-                // 'vendor-react' REMOVIDO — estava vazio e causava o erro no SSR
                 'vendor-router':   ['@tanstack/react-router'],
                 'vendor-recharts': ['recharts'],
                 'vendor-motion':   ['framer-motion'],
