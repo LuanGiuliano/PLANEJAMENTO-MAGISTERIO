@@ -3,7 +3,7 @@ import {
   Users, UserMinus, ArrowRightLeft, HeartPulse, 
   FileText, Settings, ChevronRight 
 } from "lucide-react";
-import { motion } from "framer-motion"; // <--- AQUI ESTÁ A IMPORTAÇÃO QUE RESOLVE A LINHA VERMELHA!
+import { motion } from "framer-motion";
 
 interface SidebarProps {
   activeTab: string;
@@ -15,7 +15,8 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     {
       title: "Gestão",
       items: [
-        { id: 'geral', label: 'Dashboard Executivo', icon: LayoutDashboard },
+        // 👇 AQUI ESTÁ A MÁGICA: id alterado para 'executivo'
+        { id: 'executivo', label: 'Dashboard Executivo', icon: LayoutDashboard },
         { id: 'planejamento', label: 'Planejamento Estratégico', icon: Target },
         { id: 'indicadores', label: 'Indicadores', icon: BarChart3 },
       ]
