@@ -6,9 +6,6 @@ export default defineConfig({
 
   tanstackStart: {
     ssr: false,
-    server: {
-      preset: 'vercel'
-    }
   },
 
   vite: {
