@@ -28,11 +28,10 @@ console.log('✅ Assets copiados para .vercel/output/static/');
 fs.cpSync(serverDir, path.join(funcDir, 'server'), { recursive: true });
 console.log('✅ Bundle do servidor copiado');
 
-// ── 4. Cria o adaptador Node.js → Fetch API (CommonJS + dynamic ESM import) ──
-//    O Vercel usa Node.js com loader CommonJS por padrão.
-//    Usamos import() dinâmico para carregar o bundle ESM do TanStack Start.
-const handlerCode = `'use strict';
-
+// ── 4. Cria o adaptador Node.js → Fetch API (ESM puro) ───────────────────────
+//    O bundle do TanStack Start é ESM. O handler também precisa ser ESM.
+//    O Vercel suporta ESM em Node.js 20.x com "type":"module" no package.json.
+const handlerCode = `
 let _appPromise;
 
 function getApp() {
@@ -42,7 +41,7 @@ function getApp() {
   return _appPromise;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     const app = await getApp();
 
@@ -84,17 +83,17 @@ module.exports = async function handler(req, res) {
     console.error('[SIAE Server Error]', err);
     res.statusCode = 500;
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.end('<h1>Erro interno do servidor</h1><pre>' + String(err) + '</pre>');
+    res.end('<h1>Erro interno</h1><pre>' + String(err) + '</pre>');
   }
-};
+}
 `;
 
 fs.writeFileSync(path.join(funcDir, 'index.js'), handlerCode);
 
-// ── 5. package.json da função (CJS — sem "type":"module") ────────────────────
+// ── 5. package.json da função (ESM — com "type":"module") ────────────────────
 fs.writeFileSync(
   path.join(funcDir, 'package.json'),
-  JSON.stringify({ type: 'commonjs' }, null, 2)
+  JSON.stringify({ type: 'module' }, null, 2)
 );
 
 // ── 6. Configuração da função serverless (.vc-config.json) ───────────────────
