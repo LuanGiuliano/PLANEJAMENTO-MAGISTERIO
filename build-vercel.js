@@ -2,27 +2,39 @@ import fs from 'fs';
 import path from 'path';
 
 const clientDir = path.resolve('dist/client');
-const vercelStaticDir = path.resolve('.vercel/output/static');
-const vercelConfigDir = path.resolve('.vercel/output');
+const assetsDir = path.join(clientDir, 'assets');
 
-// 1. Cria as pastas ocultas que o Vercel exige
-fs.mkdirSync(vercelStaticDir, { recursive: true });
+// Descobre dinamicamente os arquivos gerados pelo Vite
+const allAssets = fs.readdirSync(assetsDir);
 
-// 2. Copia todo o visual estático para dentro do Vercel
-fs.cpSync(clientDir, vercelStaticDir, { recursive: true });
+const cssFiles = allAssets.filter(f => f.endsWith('.css'));
+const jsFiles  = allAssets.filter(f => f.endsWith('.js'));
 
-// 3. Injeta a regra de roteamento (Fim do Erro 404)
-const config = {
-  version: 3,
-  routes: [
-    { handle: "filesystem" },
-    { src: "/(.*)", dest: "/index.html" }
-  ]
-};
+// Ordena para garantir: vendor* primeiro, depois index*
+const vendorJs  = jsFiles.filter(f => f.startsWith('vendor'));
+const mainJs    = jsFiles.filter(f => !f.startsWith('vendor'));
 
-fs.writeFileSync(
-  path.join(vercelConfigDir, 'config.json'),
-  JSON.stringify(config, null, 2)
-);
+const cssLinks  = cssFiles.map(f => `  <link rel="stylesheet" crossorigin href="/assets/${f}">`).join('\n');
+const vendorTags = vendorJs.map(f => `  <script type="module" crossorigin src="/assets/${f}"></script>`).join('\n');
+const mainTags  = mainJs.map(f => `  <script type="module" crossorigin src="/assets/${f}"></script>`).join('\n');
 
-console.log('✅ Estrutura Vercel Build Output gerada com sucesso!');
+const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIAE · SEDUC-PA — Planejamento do Magistério</title>
+    <meta name="description" content="Dashboard estratégico do Planejamento do Magistério da Secretaria de Educação do Pará." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+${cssLinks}
+  </head>
+  <body>
+    <div id="root"></div>
+${vendorTags}
+${mainTags}
+  </body>
+</html>
+`;
+
+fs.writeFileSync(path.join(clientDir, 'index.html'), html, 'utf-8');
+console.log('✅ index.html gerado em dist/client com', cssFiles.length, 'CSS e', jsFiles.length, 'JS');
