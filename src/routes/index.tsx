@@ -8,7 +8,7 @@ import {
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { FilterDropdown } from "@/components/dashboard/FilterDropdown";
 import { KpiCard } from "@/components/dashboard/KpiCard";
-import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresScatterChart, IndicadoresRadarChart } from "@/components/dashboard/Charts";
+import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart } from "@/components/dashboard/Charts";
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
@@ -323,8 +323,8 @@ function Dashboard() {
                  </div>
 
                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-                    <IndicadoresScatterChart data={dispersaoRI} />
-                    <IndicadoresRadarChart data={radarRiscos} />
+                    <IndicadoresMetasChart data={dispersaoRI} />
+                    <IndicadoresRiscosChart data={radarRiscos} />
                  </div>
                </motion.div>
             )}

@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, CartesianGrid,
   ScatterChart, Scatter, ZAxis, ReferenceLine,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, LabelList
 } from "recharts";
 
 const tooltipStyle = {
@@ -148,70 +148,56 @@ export function DistribuicaoChart({ data = [] }: { data?: any[] }) {
   );
 }
 
-export function IndicadoresScatterChart({ data = [] }: { data?: any[] }) {
+export function IndicadoresMetasChart({ data = [] }: { data?: any[] }) {
   if (!data || data.length === 0) return null;
+  const sortedData = [...data].sort((a, b) => b.pct1Escola - a.pct1Escola).slice(0, 8); // top 8
 
   return (
-    <ChartCard title="Dispersão de Metas x Tamanho da Rede" subtitle="Regiões de Integração (Tamanho da bolha = Risco Logístico)" delay={0.1} className="col-span-3">
+    <ChartCard title="Cumprimento da Meta por Região" subtitle="Top 8 RIs - Meta de 61% de exclusividade" delay={0.1} className="col-span-3">
       <ResponsiveContainer width="100%" height={320}>
-        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: -20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-          <XAxis 
-            type="number" 
-            dataKey="pct1Escola" 
-            name="Meta 61%" 
-            unit="%" 
-            stroke="#64748b" 
-            fontSize={10} 
-            tickFormatter={(v) => `${v}%`} 
-            domain={[0, 100]}
+        <BarChart data={sortedData} layout="vertical" margin={{ top: 25, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+          <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
+          <YAxis type="category" dataKey="ri" tick={{ fill: '#94a3b8', fontSize: 10 }} width={80} />
+          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={tooltipStyle.labelStyle} formatter={(v: number) => [`${v}%`, 'Exclusividade']} />
+          <ReferenceLine 
+            x={61} 
+            stroke="#F4A300" 
+            strokeWidth={3} 
+            strokeDasharray="4 4" 
+            label={{ position: 'top', value: 'META (61%)', fill: '#F4A300', fontSize: 12, fontWeight: 800 }} 
           />
-          <YAxis 
-            type="number" 
-            dataKey="totalDocentes" 
-            name="Total de Docentes" 
-            stroke="#64748b" 
-            fontSize={10} 
-            tickFormatter={(v) => v.toLocaleString('pt-BR')} 
-          />
-          <ZAxis type="number" dataKey="riscoLogistico" range={[50, 600]} name="Risco Logístico" />
-          <Tooltip 
-            cursor={{ strokeDasharray: '3 3' }} 
-            contentStyle={{ background: "#102A43", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "#F5F7FA" }}
-            formatter={(value: any, name: any) => [
-              name === 'Meta 61%' ? `${value}%` : value.toLocaleString('pt-BR'), 
-              name
-            ]}
-          />
-          <ReferenceLine x={61} stroke="#008F72" strokeDasharray="3 3" label={{ position: 'top', value: 'Meta (61%)', fill: '#008F72', fontSize: 10 }} />
-          <Scatter name="RIs" data={data} fill="#C62828" opacity={0.7} animationDuration={1000}>
-            {data.map((entry, index) => (
+          <Bar name="Exclusividade (1 Escola)" dataKey="pct1Escola" radius={[0, 4, 4, 0]}>
+            <LabelList dataKey="pct1Escola" position="right" formatter={(v: number) => `${v}%`} fill="#94a3b8" fontSize={10} fontWeight="bold" />
+            {sortedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.pct1Escola >= 61 ? '#008F72' : entry.pct1Escola >= 50 ? '#F4A300' : '#C62828'} />
             ))}
-          </Scatter>
-        </ScatterChart>
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </ChartCard>
   );
 }
 
-export function IndicadoresRadarChart({ data = [] }: { data?: any[] }) {
+export function IndicadoresRiscosChart({ data = [] }: { data?: any[] }) {
   if (!data || data.length === 0) return null;
 
   return (
     <ChartCard title="Mapeamento de Riscos" subtitle="Top 6 RIs com maiores redes" delay={0.2} className="col-span-2">
       <ResponsiveContainer width="100%" height={320}>
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid stroke="rgba(255,255,255,0.1)" />
-          <PolarAngleAxis dataKey="ri" tick={{ fill: '#94a3b8', fontSize: 9 }} />
-          <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 9 }} orientation="middle" />
-          <Radar name="Risco Logístico (%)" dataKey="Risco Logístico" stroke="#C62828" fill="#C62828" fillOpacity={0.3} />
-          <Radar name="S/ Foco (%)" dataKey="S/ Foco" stroke="#F4A300" fill="#F4A300" fillOpacity={0.3} />
+        <BarChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: -10 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+          <XAxis dataKey="ri" tick={{ fill: '#94a3b8', fontSize: 10 }} angle={-30} textAnchor="end" height={60} />
+          <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
+          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={tooltipStyle.labelStyle} formatter={(v: number) => [`${v}%`]} />
           <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
-          <Tooltip 
-            contentStyle={{ background: "#102A43", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "#F5F7FA" }}
-          />
-        </RadarChart>
+          <Bar name="Risco Logístico (%)" dataKey="Risco Logístico" fill="#C62828" radius={[4, 4, 0, 0]}>
+            <LabelList dataKey="Risco Logístico" position="top" formatter={(v: number) => `${v}%`} fill="#94a3b8" fontSize={10} />
+          </Bar>
+          <Bar name="Múltiplas Escolas (%)" dataKey="Múltiplas Escolas" fill="#F4A300" radius={[4, 4, 0, 0]}>
+            <LabelList dataKey="Múltiplas Escolas" position="top" formatter={(v: number) => `${v}%`} fill="#94a3b8" fontSize={10} />
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </ChartCard>
   );
