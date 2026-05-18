@@ -2,7 +2,7 @@
  * build-vercel.js
  * Gera a estrutura Vercel Build Output API v3:
  *   .vercel/output/static/   → assets estáticos (CSS, JS)
- *   .vercel/output/functions/index.func/ → função serverless Node.js
+ *   .vercel/output/functions/index.func/ → função serverless Node.js (CJS)
  *   .vercel/output/config.json → roteamento
  */
 import fs from 'fs';
@@ -28,50 +28,73 @@ console.log('✅ Assets copiados para .vercel/output/static/');
 fs.cpSync(serverDir, path.join(funcDir, 'server'), { recursive: true });
 console.log('✅ Bundle do servidor copiado');
 
-// ── 4. Cria o adaptador Node.js → Fetch API ──────────────────────────────────
-//    O TanStack Start gera um handler com interface Fetch API (como Cloudflare
-//    Workers). O Vercel usa Node.js. Este adaptador faz a ponte.
-const handlerCode = `import app from './server/server.js';
+// ── 4. Cria o adaptador Node.js → Fetch API (CommonJS + dynamic ESM import) ──
+//    O Vercel usa Node.js com loader CommonJS por padrão.
+//    Usamos import() dinâmico para carregar o bundle ESM do TanStack Start.
+const handlerCode = `'use strict';
 
-export default async function handler(req, res) {
-  const protocol = req.headers['x-forwarded-proto'] || 'https';
-  const host     = req.headers['x-forwarded-host'] || req.headers.host;
-  const url      = protocol + '://' + host + req.url;
+let _appPromise;
 
-  let body = undefined;
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    body = await new Promise((resolve) => {
-      const chunks = [];
-      req.on('data', (c) => chunks.push(c));
-      req.on('end', () => resolve(Buffer.concat(chunks)));
-    });
+function getApp() {
+  if (!_appPromise) {
+    _appPromise = import('./server/server.js').then(m => m.default);
   }
-
-  const headers = {};
-  for (const [k, v] of Object.entries(req.headers)) {
-    if (v !== undefined) headers[k] = Array.isArray(v) ? v.join(', ') : v;
-  }
-
-  const request = new Request(url, { method: req.method, headers, body });
-
-  const response = await app.fetch(request, process.env, {});
-
-  res.statusCode = response.status;
-  for (const [k, v] of response.headers.entries()) {
-    res.setHeader(k, v);
-  }
-
-  const buf = await response.arrayBuffer();
-  res.end(Buffer.from(buf));
+  return _appPromise;
 }
+
+module.exports = async function handler(req, res) {
+  try {
+    const app = await getApp();
+
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host     = req.headers['x-forwarded-host'] || req.headers.host || 'localhost';
+    const url      = protocol + '://' + host + req.url;
+
+    let body = undefined;
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      body = await new Promise((resolve, reject) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => resolve(Buffer.concat(chunks)));
+        req.on('error', reject);
+      });
+    }
+
+    const headers = {};
+    for (const [k, v] of Object.entries(req.headers)) {
+      if (v !== undefined) headers[k] = Array.isArray(v) ? v.join(', ') : String(v);
+    }
+
+    const request = new Request(url, {
+      method: req.method,
+      headers,
+      body: body && body.length > 0 ? body : undefined,
+    });
+
+    const response = await app.fetch(request, process.env, {});
+
+    res.statusCode = response.status;
+    for (const [k, v] of response.headers.entries()) {
+      res.setHeader(k, v);
+    }
+
+    const buf = await response.arrayBuffer();
+    res.end(Buffer.from(buf));
+  } catch (err) {
+    console.error('[SIAE Server Error]', err);
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.end('<h1>Erro interno do servidor</h1><pre>' + String(err) + '</pre>');
+  }
+};
 `;
 
-fs.writeFileSync(path.join(funcDir, 'index.mjs'), handlerCode);
+fs.writeFileSync(path.join(funcDir, 'index.js'), handlerCode);
 
-// ── 5. package.json da função (ESM) ─────────────────────────────────────────
+// ── 5. package.json da função (CJS — sem "type":"module") ────────────────────
 fs.writeFileSync(
   path.join(funcDir, 'package.json'),
-  JSON.stringify({ type: 'module' }, null, 2)
+  JSON.stringify({ type: 'commonjs' }, null, 2)
 );
 
 // ── 6. Configuração da função serverless (.vc-config.json) ───────────────────
@@ -79,14 +102,13 @@ fs.writeFileSync(
   path.join(funcDir, '.vc-config.json'),
   JSON.stringify({
     runtime: 'nodejs20.x',
-    handler: 'index.mjs',
+    handler: 'index.js',
     launcherType: 'Nodejs',
     shouldAddHelpers: true,
   }, null, 2)
 );
 
 // ── 7. Configuração de roteamento do Vercel ──────────────────────────────────
-//    Assets estáticos servidos diretamente; tudo mais vai pro servidor Node.js
 const config = {
   version: 3,
   routes: [
