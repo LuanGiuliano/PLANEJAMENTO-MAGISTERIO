@@ -247,8 +247,68 @@ const executivo = {
   totalTemporarios:
     vinculoCounts['Contratado'] || 0,
 };
+
+  // --- NOVOS DADOS PARA A ABA DE INDICADORES ---
+  const dispersaoRI = Array.from(uniqueRIs).map(riStr => {
+     const docsRI = docs.filter(d => {
+         let r = String(d[kRI] || '').toUpperCase().replace(/^RI\s*/i, '').trim();
+         return r === riStr;
+     });
+     const total = docsRI.length;
+     const docsCurr = docsRI.filter(d => d._isCurricular);
+     const totalCurr = docsCurr.length;
+     const curr1 = docsCurr.filter(d => d._qtdEscolas === 1).length;
+     const pct1 = totalCurr > 0 ? (curr1 / totalCurr) * 100 : 0;
+     const multiMun = docsRI.filter(d => d._municipios.size > 1).length;
+     const duploVinc = docsRI.filter(d => d._qtdVinculos >= 2).length;
+
+     return {
+        ri: riStr,
+        totalDocentes: total,
+        pct1Escola: parseFloat(pct1.toFixed(1)),
+        riscoLogistico: multiMun + duploVinc
+     };
+  }).filter(d => d.totalDocentes > 0);
+
+  const topRIsRadar = [...dispersaoRI].sort((a, b) => b.totalDocentes - a.totalDocentes).slice(0, 6);
+  const radarRiscos = topRIsRadar.map(riData => {
+     const docsRI = docs.filter(d => String(d[kRI] || '').toUpperCase().replace(/^RI\s*/i, '').trim() === riData.ri);
+     const total = docsRI.length || 1;
+     const readaptados = docsRI.filter(d => String(d[kReadap] || '').toUpperCase().includes('SIM')).length;
+     return {
+         ri: riData.ri.substring(0, 10) + (riData.ri.length > 10 ? "..." : ""),
+         "Risco Logístico": parseFloat(((riData.riscoLogistico / total) * 100).toFixed(1)),
+         "S/ Foco": parseFloat(((100 - riData.pct1Escola)).toFixed(1)),
+         "Afastamentos": parseFloat(((readaptados / total) * 100).toFixed(1)),
+     };
+  });
+
+  const dispersaoMunicipios = Array.from(uniqueMunicipios).map(munStr => {
+     const docsMun = docs.filter(d => {
+         let m = String(d[kMun] || '').toUpperCase().trim();
+         return m === munStr;
+     });
+     const total = docsMun.length;
+     const docsCurr = docsMun.filter(d => d._isCurricular);
+     const totalCurr = docsCurr.length;
+     const curr1 = docsCurr.filter(d => d._qtdEscolas === 1).length;
+     const pct1 = totalCurr > 0 ? (curr1 / totalCurr) * 100 : 0;
+     const multiMun = docsMun.filter(d => d._municipios.size > 1).length;
+     const duploVinc = docsMun.filter(d => d._qtdVinculos >= 2).length;
+
+     return {
+        municipio: munStr,
+        totalDocentes: total,
+        pct1Escola: parseFloat(pct1.toFixed(1)),
+        riscoLogistico: multiMun + duploVinc
+     };
+  }).filter(d => d.totalDocentes > 0);
+
  return {
   executivo,
+  dispersaoRI,
+  radarRiscos,
+  dispersaoMunicipios,
 
   kpis: [
     {
@@ -426,4 +486,4 @@ const executivo = {
     },
   }
 };
-}
+};
