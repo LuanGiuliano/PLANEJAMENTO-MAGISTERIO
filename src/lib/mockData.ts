@@ -131,11 +131,15 @@ export const processDashboardData = (rawData: any[], filtrosAtivos: any = {}) =>
       if (qtdEscolas === 1) e.apenas1++;
     }
 
+    const colSubcat = String(linha[kSubcat] || '').toUpperCase();
+    const ehCurricular = ['PROFESSOR', 'ESPECIAL', 'SALA DE LEITURA'].some(s => colSubcat.includes(s)) && !colSubcat.includes('READAPTADO');
+
     if (isDocente && qtdEscolas >= 1) {
       if (!mapDocentes.has(chaveUnica)) {
         linha._qtdEscolas = qtdEscolas; 
         linha._municipios = new Set();
-        linha._isCurricular = colAgrup.includes('CURRICULAR');
+        const colAtivCurr = String(linha['ATIVIDADE CURRICULA'] || linha['ATIVIDADECURRICULAR'] || '').toUpperCase();
+        linha._isCurricular = ehCurricular || colAgrup.includes('CURRICULAR') || colAtivCurr === 'SIM';
         linha._isRegencia = String(linha[kRegencia] || '').toUpperCase().includes('SIM');
         
         // Quantidade de Vínculos (Duplo Vínculo)
@@ -278,7 +282,7 @@ const executivo = {
      return {
          ri: riData.ri.substring(0, 10) + (riData.ri.length > 10 ? "..." : ""),
          "Risco Logístico": parseFloat(((riData.riscoLogistico / total) * 100).toFixed(1)),
-         "S/ Foco": parseFloat(((100 - riData.pct1Escola)).toFixed(1)),
+         "Múltiplas Escolas": parseFloat(((100 - riData.pct1Escola)).toFixed(1)),
          "Afastamentos": parseFloat(((readaptados / total) * 100).toFixed(1)),
      };
   });
