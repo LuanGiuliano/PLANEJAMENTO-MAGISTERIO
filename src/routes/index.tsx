@@ -8,7 +8,8 @@ import {
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { FilterDropdown } from "@/components/dashboard/FilterDropdown";
 import { KpiCard } from "@/components/dashboard/KpiCard";
-import { ConformidadeChart, VinculoChart, DistribuicaoChart } from "@/components/dashboard/Charts";
+import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresScatterChart, IndicadoresRadarChart } from "@/components/dashboard/Charts";
+import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
 export const Route = createFileRoute("/")({
@@ -90,7 +91,7 @@ function Dashboard() {
   }, [rawData, filtrosAtivos]);
 
   if (!dashboardData || !execExtras) return null;
-  const { kpis, conformidadeModalidade, vinculoDispersao, distribuicaoGeral, opcoesFiltros, indicadores33 } = dashboardData;
+  const { kpis, conformidadeModalidade, vinculoDispersao, distribuicaoGeral, opcoesFiltros, indicadores33, dispersaoRI, radarRiscos, dispersaoMunicipios } = dashboardData;
 
   // ============================================================================
   // CONSOLIDAÇÃO MATEMÁTICA PERFEITA (Tudo soma exatamente os 22.699)
@@ -298,6 +299,41 @@ function Dashboard() {
                     </div>
                   </div>
                 </div>
+              </motion.div>
+            )}
+
+
+            {/* Outras Abas mantidas limpas */}
+            {activeTab === 'geral' && (
+               <motion.div key="geral" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                 <div className="grid grid-cols-3 gap-6">
+                    <DistribuicaoChart data={distribuicaoGeral} />
+                 </div>
+               </motion.div>
+            )}
+
+            {activeTab === 'indicadores' && (
+               <motion.div key="indicadores" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                 <div className="flex items-center justify-between mb-6">
+                   <h2 className="text-lg font-bold text-[#F5F7FA] uppercase tracking-wide">Análise Avançada e Dispersão de Metas</h2>
+                 </div>
+                 
+                 <div className="mb-6">
+                    <MapaDispersao data={dispersaoMunicipios} />
+                 </div>
+
+                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <IndicadoresScatterChart data={dispersaoRI} />
+                    <IndicadoresRadarChart data={radarRiscos} />
+                 </div>
+               </motion.div>
+            )}
+
+            {(activeTab !== 'planejamento' && activeTab !== 'geral' && activeTab !== 'indicadores') && (
+              <motion.div key="empty" className="flex flex-col items-center justify-center py-32 text-center">
+                <div className="p-5 rounded bg-[#132F4C] border border-white/5 mb-6"><Target className="text-[#F4A300]" size={32} /></div>
+                <h2 className="text-xl font-bold text-[#F5F7FA] uppercase tracking-wide">Módulo Operacional em Construção</h2>
+                <p className="text-sm text-slate-400 max-w-md mt-3">As diretrizes e relatórios deste módulo estão sendo homologados conforme as normativas do Governo do Estado.</p>
               </motion.div>
             )}
 

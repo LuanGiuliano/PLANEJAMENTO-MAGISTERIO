@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, CartesianGrid,
+  ScatterChart, Scatter, ZAxis, ReferenceLine,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend
 } from "recharts";
 
 const tooltipStyle = {
@@ -142,6 +144,75 @@ export function DistribuicaoChart({ data = [] }: { data?: any[] }) {
           </div>
         ))}
       </div>
+    </ChartCard>
+  );
+}
+
+export function IndicadoresScatterChart({ data = [] }: { data?: any[] }) {
+  if (!data || data.length === 0) return null;
+
+  return (
+    <ChartCard title="Dispersão de Metas x Tamanho da Rede" subtitle="Regiões de Integração (Tamanho da bolha = Risco Logístico)" delay={0.1} className="col-span-3">
+      <ResponsiveContainer width="100%" height={320}>
+        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: -20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+          <XAxis 
+            type="number" 
+            dataKey="pct1Escola" 
+            name="Meta 61%" 
+            unit="%" 
+            stroke="#64748b" 
+            fontSize={10} 
+            tickFormatter={(v) => `${v}%`} 
+            domain={[0, 100]}
+          />
+          <YAxis 
+            type="number" 
+            dataKey="totalDocentes" 
+            name="Total de Docentes" 
+            stroke="#64748b" 
+            fontSize={10} 
+            tickFormatter={(v) => v.toLocaleString('pt-BR')} 
+          />
+          <ZAxis type="number" dataKey="riscoLogistico" range={[50, 600]} name="Risco Logístico" />
+          <Tooltip 
+            cursor={{ strokeDasharray: '3 3' }} 
+            contentStyle={{ background: "#102A43", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "#F5F7FA" }}
+            formatter={(value: any, name: any) => [
+              name === 'Meta 61%' ? `${value}%` : value.toLocaleString('pt-BR'), 
+              name
+            ]}
+          />
+          <ReferenceLine x={61} stroke="#008F72" strokeDasharray="3 3" label={{ position: 'top', value: 'Meta (61%)', fill: '#008F72', fontSize: 10 }} />
+          <Scatter name="RIs" data={data} fill="#C62828" opacity={0.7} animationDuration={1000}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.pct1Escola >= 61 ? '#008F72' : entry.pct1Escola >= 50 ? '#F4A300' : '#C62828'} />
+            ))}
+          </Scatter>
+        </ScatterChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+export function IndicadoresRadarChart({ data = [] }: { data?: any[] }) {
+  if (!data || data.length === 0) return null;
+
+  return (
+    <ChartCard title="Mapeamento de Riscos" subtitle="Top 6 RIs com maiores redes" delay={0.2} className="col-span-2">
+      <ResponsiveContainer width="100%" height={320}>
+        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+          <PolarGrid stroke="rgba(255,255,255,0.1)" />
+          <PolarAngleAxis dataKey="ri" tick={{ fill: '#94a3b8', fontSize: 9 }} />
+          <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 9 }} orientation="middle" />
+          <Radar name="Risco Logístico (%)" dataKey="Risco Logístico" stroke="#C62828" fill="#C62828" fillOpacity={0.3} />
+          <Radar name="S/ Foco (%)" dataKey="S/ Foco" stroke="#F4A300" fill="#F4A300" fillOpacity={0.3} />
+          <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+          <Tooltip 
+            contentStyle={{ background: "#102A43", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "#F5F7FA" }}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
     </ChartCard>
   );
 }
