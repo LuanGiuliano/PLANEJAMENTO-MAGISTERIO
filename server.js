@@ -16,6 +16,7 @@ if (typeof globalThis.window === 'undefined') {
     querySelectorAll: () => [],
     body: { appendChild: () => {}, removeChild: () => {}, style: {} },
     head: { appendChild: () => {} },
+    documentElement: { style: {} }
   };
   try {
     Object.defineProperty(globalThis, 'navigator', { value: { userAgent: 'node', platform: 'node' }, configurable: true, writable: true });
