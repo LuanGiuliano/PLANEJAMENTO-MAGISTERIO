@@ -2,7 +2,7 @@ services:
   - type: web
     name: planejamento-magisterio
     env: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run build && node build-render.js
     staticPublishPath: ./dist/client
     routes:
       - type: rewrite
