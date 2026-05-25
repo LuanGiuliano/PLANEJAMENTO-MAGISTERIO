@@ -12,11 +12,13 @@ if (typeof globalThis.window === 'undefined') {
     querySelectorAll: () => [],
     body: { appendChild: () => {}, removeChild: () => {}, style: {} },
     head: { appendChild: () => {} },
+    documentElement: { style: {} }
   };
   try {
     Object.defineProperty(globalThis, 'navigator', { value: { userAgent: 'node', platform: 'node' }, configurable: true, writable: true });
   } catch (_) {}
   globalThis.location = { href: '/', protocol: 'https:', host: 'localhost' };
+  globalThis.screen = { deviceXDPI: 96, logicalXDPI: 96 };
 }
 
 import fs from 'fs';
