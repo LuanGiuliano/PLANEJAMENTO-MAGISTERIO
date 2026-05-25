@@ -28,7 +28,6 @@ function Dashboard() {
   });
 
   // 1. DADOS SEGUROS DO SEU MOCKDATA (A Fonte da Verdade)
-  if (loading) return (<div className="flex min-h-screen items-center justify-center bg-[#081C2E]"><Loader2 className="h-10 w-10 animate-spin text-[#F4A300]" /></div>);
   const dashboardData = processDashboardData(rawData ?? [], filtrosAtivos);
 
   // 2. EXTRATOR CORRIGIDO (Lê Readaptados com 'SIM' e Regência corretamente)
@@ -141,6 +140,17 @@ function Dashboard() {
     if (k.label.includes('Regência')) return { ...k, value: execExtras.regencia.toLocaleString('pt-BR') };
     return k;
   });
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#081C2E]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-[#F4A300]" />
+          <span className="text-slate-400 text-sm">Carregando base de dados...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-[#081C2E] overflow-hidden font-sans">
