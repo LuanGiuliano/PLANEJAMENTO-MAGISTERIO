@@ -12,7 +12,7 @@ const server = express();
 server.use(express.static(path.join(__dirname, 'dist', 'client')));
 
 // 2. Fallback de SPA: Qualquer rota não encontrada vai para o index.html
-server.get('*', (req, res) => {
+server.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'client', 'index.html'));
 });
 
