@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -13,24 +13,23 @@ import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
 export const Route = createFileRoute("/")({
-  loader: async () => await fetchRawData(),
-  pendingComponent: () => (
-    <div className="flex min-h-screen items-center justify-center bg-[#081C2E]">
-      <Loader2 className="h-10 w-10 animate-spin text-[#F4A300]" />
-    </div>
-  ),
   component: Dashboard,
 });
 
 function Dashboard() {
-  const rawData = Route.useLoaderData() as any[];
+  const [rawData, setRawData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetchRawData().then(data => { setRawData(data); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
   const [activeTab, setActiveTab] = useState('executivo');
   const [filtrosAtivos, setFiltrosAtivos] = useState({
     ri: "Todas", municipio: "Todos", regiao: "Todas", atividade: "Todas", vinculo: "Todos"
   });
 
   // 1. DADOS SEGUROS DO SEU MOCKDATA (A Fonte da Verdade)
-  const dashboardData = useMemo(() => processDashboardData(rawData, filtrosAtivos), [rawData, filtrosAtivos]);
+  if (loading) return (<div className="flex min-h-screen items-center justify-center bg-[#081C2E]"><Loader2 className="h-10 w-10 animate-spin text-[#F4A300]" /></div>);
+  const dashboardData = processDashboardData(rawData ?? [], filtrosAtivos);
 
   // 2. EXTRATOR CORRIGIDO (Lê Readaptados com 'SIM' e Regência corretamente)
   const execExtras = useMemo(() => {
