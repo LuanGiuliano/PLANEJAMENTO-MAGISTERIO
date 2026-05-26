@@ -11,6 +11,7 @@ import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart } from "@/components/dashboard/Charts";
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { ServidoresTable } from "@/components/dashboard/ServidoresTable";
+import { PoliticasIndicators } from "@/components/dashboard/PoliticasIndicators";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
 export const Route = createFileRoute("/")({
@@ -18,18 +19,48 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const [rawData, setRawData] = useState(null);
+  const [rawData, setRawData] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(false);
   useEffect(() => {
-    fetchRawData().then(data => { setRawData(data); setLoading(false); }).catch(() => setLoading(false));
+    fetchRawData()
+      .then(data => { setRawData(data); setLoading(false); })
+      .catch(() => { setLoading(false); setErro(true); });
   }, []);
   const [activeTab, setActiveTab] = useState('executivo');
   const [filtrosAtivos, setFiltrosAtivos] = useState({
     ri: "Todas", municipio: "Todos", regiao: "Todas", atividade: "Todas", vinculo: "Todos"
   });
 
-  // 1. DADOS SEGUROS DO SEU MOCKDATA (A Fonte da Verdade)
-  const dashboardData = processDashboardData(rawData ?? [], filtrosAtivos);
+  // Mostra spinner enquanto carrega
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#081C2E]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-[#F4A300]" />
+          <span className="text-slate-400 text-sm">Carregando base de dados...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (erro || !rawData || rawData.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#081C2E]">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <AlertTriangle className="h-10 w-10 text-[#C62828]" />
+          <span className="text-slate-300 font-bold">Não foi possível carregar a base de dados.</span>
+          <span className="text-slate-500 text-sm">Verifique sua conexão com a internet e recarregue a página.</span>
+          <button onClick={() => window.location.reload()} className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition">
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. DADOS SEGUROS DO SEU MOCKDATA (A Fonte da Verdade) - só executa quando há dados reais
+  const dashboardData = processDashboardData(rawData, filtrosAtivos);
 
   // 2. EXTRATOR CORRIGIDO (Lê Readaptados com 'SIM' e Regência corretamente)
   const execExtras = useMemo(() => {
@@ -106,7 +137,7 @@ function Dashboard() {
     };
   }, [rawData, filtrosAtivos]);
 
-  if (!dashboardData || !execExtras) return null;
+  if (!dashboardData) return null;
   const { kpis, conformidadeModalidade, vinculoDispersao, distribuicaoGeral, opcoesFiltros, indicadores33, dispersaoRI, radarRiscos, dispersaoMunicipios, tabelas } = dashboardData;
 
   // ============================================================================
@@ -142,16 +173,7 @@ function Dashboard() {
     return k;
   });
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#081C2E]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-[#F4A300]" />
-          <span className="text-slate-400 text-sm">Carregando base de dados...</span>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="flex h-screen bg-[#081C2E] overflow-hidden font-sans">
