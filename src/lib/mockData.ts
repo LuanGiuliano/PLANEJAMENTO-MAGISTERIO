@@ -488,6 +488,17 @@ const executivo = {
       totalCurricular,
       totalRegencia
     },
+  },
+
+  tabelas: {
+    geral: baseFiltrada,
+    cedidos: baseFiltrada.filter((l: any) => String(l['VINCULO'] || '').toUpperCase().includes('CEDIDO')),
+    movimentados: baseFiltrada.filter((l: any) => {
+      const c = String(l['SETOR_CARGO'] || '').toUpperCase().trim();
+      const lot = String(l['SETOR_LOT'] || '').toUpperCase().trim();
+      return c && lot && c !== lot;
+    }),
+    readaptados: baseFiltrada.filter((l: any) => String(l['readpatado'] || l['READPATADO'] || '').toUpperCase().includes('SIM'))
   }
 };
 };

@@ -10,6 +10,7 @@ import { FilterDropdown } from "@/components/dashboard/FilterDropdown";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart } from "@/components/dashboard/Charts";
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
+import { ServidoresTable } from "@/components/dashboard/ServidoresTable";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
 export const Route = createFileRoute("/")({
@@ -106,7 +107,7 @@ function Dashboard() {
   }, [rawData, filtrosAtivos]);
 
   if (!dashboardData || !execExtras) return null;
-  const { kpis, conformidadeModalidade, vinculoDispersao, distribuicaoGeral, opcoesFiltros, indicadores33, dispersaoRI, radarRiscos, dispersaoMunicipios } = dashboardData;
+  const { kpis, conformidadeModalidade, vinculoDispersao, distribuicaoGeral, opcoesFiltros, indicadores33, dispersaoRI, radarRiscos, dispersaoMunicipios, tabelas } = dashboardData;
 
   // ============================================================================
   // CONSOLIDAÇÃO MATEMÁTICA COM AS CORREÇÕES
@@ -355,6 +356,43 @@ function Dashboard() {
                     <IndicadoresRiscosChart data={radarRiscos} />
                  </div>
                </motion.div>
+            )}
+
+            {/* ABAS DE SERVIDORES (Listagens de Dados) */}
+            {activeTab === 'lotacao' && (
+              <motion.div key="lotacao" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col">
+                <div className="flex-1 min-h-[300px]">
+                  <ServidoresTable data={tabelas.geral} title="Lotação Geral de Servidores" />
+                </div>
+                <PoliticasIndicators data={tabelas.geral} />
+              </motion.div>
+            )}
+
+            {activeTab === 'cedidos' && (
+              <motion.div key="cedidos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col">
+                <div className="flex-1 min-h-[300px]">
+                  <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
+                </div>
+                <PoliticasIndicators data={tabelas.cedidos} />
+              </motion.div>
+            )}
+
+            {activeTab === 'movimentacoes' && (
+              <motion.div key="movimentacoes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col">
+                <div className="flex-1 min-h-[300px]">
+                  <ServidoresTable data={tabelas.movimentados} title="Movimentações (Setor de Cargo Diferente do Setor Lotado)" />
+                </div>
+                <PoliticasIndicators data={tabelas.movimentados} />
+              </motion.div>
+            )}
+
+            {activeTab === 'readaptacoes' && (
+              <motion.div key="readaptacoes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col">
+                <div className="flex-1 min-h-[300px]">
+                  <ServidoresTable data={tabelas.readaptados} title="Servidores Readaptados" />
+                </div>
+                <PoliticasIndicators data={tabelas.readaptados} />
+              </motion.div>
             )}
 
           </AnimatePresence>
