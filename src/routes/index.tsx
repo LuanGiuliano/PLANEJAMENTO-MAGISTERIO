@@ -19,20 +19,95 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
+  // ── TODOS OS HOOKS PRIMEIRO (React exige que hooks nunca fiquem após returns condicionais) ──
   const [rawData, setRawData] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(false);
-  useEffect(() => {
-    fetchRawData()
-      .then(data => { setRawData(data); setLoading(false); })
-      .catch(() => { setLoading(false); setErro(true); });
-  }, []);
   const [activeTab, setActiveTab] = useState('executivo');
   const [filtrosAtivos, setFiltrosAtivos] = useState({
     ri: "Todas", municipio: "Todos", regiao: "Todas", atividade: "Todas", vinculo: "Todos"
   });
 
-  // Mostra spinner enquanto carrega
+  useEffect(() => {
+    fetchRawData()
+      .then(data => { setRawData(data); setLoading(false); })
+      .catch(() => { setLoading(false); setErro(true); });
+  }, []);
+
+  // useMemo ANTES de qualquer return condicional
+  const dashboardData = useMemo(() => {
+    if (!rawData || rawData.length === 0) return null;
+    return processDashboardData(rawData, filtrosAtivos);
+  }, [rawData, filtrosAtivos]);
+
+  const execExtras = useMemo(() => {
+    if (!rawData || rawData.length === 0) return { naMatriz: 0, gestoresEmSala: 0, readaptados: 0, regencia: 0 };
+
+    const sanitize = (s: string) => String(s || '').toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
+    const colunas = Object.keys(rawData[0]);
+    const findCol = (keywords: string[], avoid: string[] = []) => {
+      for (const kw of keywords) {
+        const found = colunas.find(c => sanitize(c).includes(sanitize(kw)) && !avoid.some(a => sanitize(c).includes(sanitize(a))));
+        if (found) return found;
+      }
+      return keywords[0] || '';
+    };
+
+    const kCPF = findCol(['CPF', 'MATRICULA']);
+    const kServ = findCol(['SERVIDOR', 'NOME']);
+    const kSubcat = findCol(['SUBCATEGORIA', 'CATEGORIA', 'CARGO']);
+    const kGestao = findCol(['GESTAOESCOLAR', 'GESTAO']);
+    const kReadap = findCol(['READPATADO', 'READAPTADO']);
+    const kRegencia = findCol(['REGENCIADECLASSE', 'REGENCIA']);
+    const kRI = findCol(['REGIAODEINTEGRACAO', 'INTEGRACAO']);
+    const kMun = findCol(['MUNICIPIOLOT', 'MUNICIPIO']);
+    const kVinc = findCol(['TIPOVINCULO'], ['MATVINC']);
+
+    const cpfsMatriz = new Set();
+    const cpfsGestoresEmSala = new Set();
+    const cpfsReadaptados = new Set();
+    const cpfsRegencia = new Set();
+
+    rawData.forEach((linha: any) => {
+      if (filtrosAtivos.ri !== 'Todas' && sanitize(linha[kRI] || '').replace(/^RI\s*/i, '') !== sanitize(filtrosAtivos.ri)) return;
+      if (filtrosAtivos.municipio !== 'Todos' && sanitize(linha[kMun] || '') !== sanitize(filtrosAtivos.municipio)) return;
+      if (filtrosAtivos.vinculo !== 'Todos' && sanitize(linha[kVinc] || '') !== sanitize(filtrosAtivos.vinculo)) return;
+
+      let chaveUnica = (linha[kCPF] && String(linha[kCPF]).trim().length > 3) ? linha[kCPF] : linha[kServ];
+      if (!chaveUnica) return;
+
+      const colReadap = sanitize(linha[kReadap] || '');
+      const colSubcat = sanitize(linha[kSubcat] || '');
+
+      if (colReadap.includes('SIM') || colSubcat.includes('READAP') || colSubcat.includes('READPATADO')) {
+        cpfsReadaptados.add(chaveUnica);
+      }
+
+      if (!colSubcat.includes('DOCENTE')) return;
+
+      const linhaCompleta = Object.values(linha).map(v => sanitize(String(v))).join(' ');
+      const colGestao = sanitize(linha[kGestao] || '');
+      const colRegencia = sanitize(linha[kRegencia] || '');
+
+      if (linhaCompleta.includes('CURRICULA') || colRegencia.includes('SIM') || linhaCompleta.includes('MATRIZ')) {
+        cpfsRegencia.add(chaveUnica);
+        if (linhaCompleta.includes('MATRIZ')) cpfsMatriz.add(chaveUnica);
+      }
+
+      if (colGestao.includes('SIM') && colRegencia.includes('SIM') && !colReadap.includes('SIM')) {
+        cpfsGestoresEmSala.add(chaveUnica);
+      }
+    });
+
+    return {
+      naMatriz: cpfsMatriz.size,
+      gestoresEmSala: cpfsGestoresEmSala.size,
+      readaptados: cpfsReadaptados.size,
+      regencia: cpfsRegencia.size
+    };
+  }, [rawData, filtrosAtivos]);
+
+  // ── RETURNS CONDICIONAIS APENAS APÓS TODOS OS HOOKS ──
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#081C2E]">
@@ -58,84 +133,6 @@ function Dashboard() {
       </div>
     );
   }
-
-  // 1. DADOS SEGUROS DO SEU MOCKDATA (A Fonte da Verdade) - só executa quando há dados reais
-  const dashboardData = processDashboardData(rawData, filtrosAtivos);
-
-  // 2. EXTRATOR CORRIGIDO (Lê Readaptados com 'SIM' e Regência corretamente)
-  const execExtras = useMemo(() => {
-    if (!rawData || rawData.length === 0) return { naMatriz: 0, gestoresEmSala: 0, readaptados: 0, regencia: 0 };
-
-    const sanitize = (s: string) => String(s || '').toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
-    const colunas = Object.keys(rawData[0]);
-    const findCol = (keywords: string[], avoid: string[] = []) => {
-      for (const kw of keywords) {
-        const found = colunas.find(c => sanitize(c).includes(sanitize(kw)) && !avoid.some(a => sanitize(c).includes(sanitize(a))));
-        if (found) return found;
-      }
-      return keywords[0] || '';
-    };
-
-    const kCPF = findCol(['CPF', 'MATRICULA']);
-    const kServ = findCol(['SERVIDOR', 'NOME']);
-    const kSubcat = findCol(['SUBCATEGORIA', 'CATEGORIA', 'CARGO']);
-    const kGestao = findCol(['GESTAOESCOLAR', 'GESTAO']);
-    const kReadap = findCol(['READPATADO', 'READAPTADO']); // Sua Coluna AL
-    const kRegencia = findCol(['REGENCIADECLASSE', 'REGENCIA']);
-    const kRI = findCol(['REGIAODEINTEGRACAO', 'INTEGRACAO']);
-    const kMun = findCol(['MUNICIPIOLOT', 'MUNICIPIO']);
-    const kVinc = findCol(['TIPOVINCULO'], ['MATVINC']);
-
-    const cpfsMatriz = new Set();
-    const cpfsGestoresEmSala = new Set();
-    const cpfsReadaptados = new Set();
-    const cpfsRegencia = new Set();
-
-    rawData.forEach((linha: any) => {
-      // Aplica filtros gerais
-      if (filtrosAtivos.ri !== 'Todas' && sanitize(linha[kRI] || '').replace(/^RI\s*/i, '') !== sanitize(filtrosAtivos.ri)) return;
-      if (filtrosAtivos.municipio !== 'Todos' && sanitize(linha[kMun] || '') !== sanitize(filtrosAtivos.municipio)) return;
-      if (filtrosAtivos.vinculo !== 'Todos' && sanitize(linha[kVinc] || '') !== sanitize(filtrosAtivos.vinculo)) return;
-
-      let chaveUnica = (linha[kCPF] && String(linha[kCPF]).trim().length > 3) ? linha[kCPF] : linha[kServ];
-      if (!chaveUnica) return;
-
-      const colReadap = sanitize(linha[kReadap] || '');
-      const colSubcat = sanitize(linha[kSubcat] || '');
-
-      // CORREÇÃO 1: READAPTADOS (Lê a coluna AL com 'SIM' ou subcategoria *ANTES* de ignorar os não-docentes)
-      if (colReadap.includes('SIM') || colSubcat.includes('READAP') || colSubcat.includes('READPATADO')) {
-        cpfsReadaptados.add(chaveUnica);
-      }
-
-      // Conta Apenas Docentes para as outras métricas
-      if (!colSubcat.includes('DOCENTE')) return;
-
-      const linhaCompleta = Object.values(linha).map(v => sanitize(String(v))).join(' ');
-      const colGestao = sanitize(linha[kGestao] || '');
-      const colRegencia = sanitize(linha[kRegencia] || '');
-
-      // CORREÇÃO 2: REGÊNCIA / MATRIZ
-      if (linhaCompleta.includes('CURRICULA') || colRegencia.includes('SIM') || linhaCompleta.includes('MATRIZ')) {
-        cpfsRegencia.add(chaveUnica);
-        if (linhaCompleta.includes('MATRIZ')) {
-          cpfsMatriz.add(chaveUnica);
-        }
-      }
-
-      // Verifica Gestor em Sala
-      if (colGestao.includes('SIM') && colRegencia.includes('SIM') && !colReadap.includes('SIM')) {
-        cpfsGestoresEmSala.add(chaveUnica);
-      }
-    });
-
-    return { 
-      naMatriz: cpfsMatriz.size, 
-      gestoresEmSala: cpfsGestoresEmSala.size,
-      readaptados: cpfsReadaptados.size,
-      regencia: cpfsRegencia.size
-    };
-  }, [rawData, filtrosAtivos]);
 
   if (!dashboardData) return null;
   const { kpis, conformidadeModalidade, vinculoDispersao, distribuicaoGeral, opcoesFiltros, indicadores33, dispersaoRI, radarRiscos, dispersaoMunicipios, tabelas } = dashboardData;
