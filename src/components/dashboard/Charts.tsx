@@ -159,7 +159,7 @@ export function IndicadoresMetasChart({ data = [] }: { data?: any[] }) {
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
           <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
           <YAxis type="category" dataKey="ri" tick={{ fill: '#94a3b8', fontSize: 10 }} width={80} />
-          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={tooltipStyle.labelStyle} formatter={(v: number) => [`${v}%`, 'Exclusividade']} />
+          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={tooltipStyle.labelStyle} formatter={(v: any) => [`${v}%`, 'Exclusividade']} />
           <ReferenceLine 
             x={61} 
             stroke="#F4A300" 
@@ -168,7 +168,7 @@ export function IndicadoresMetasChart({ data = [] }: { data?: any[] }) {
             label={{ position: 'top', value: 'META (61%)', fill: '#F4A300', fontSize: 12, fontWeight: 800 }} 
           />
           <Bar name="Exclusividade (1 Escola)" dataKey="pct1Escola" radius={[0, 4, 4, 0]}>
-            <LabelList dataKey="pct1Escola" position="right" formatter={(v: number) => `${v}%`} fill="#94a3b8" fontSize={10} fontWeight="bold" />
+            <LabelList dataKey="pct1Escola" position="right" formatter={(v: any) => `${v}%`} fill="#94a3b8" fontSize={10} fontWeight="bold" />
             {sortedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.pct1Escola >= 61 ? '#008F72' : entry.pct1Escola >= 50 ? '#F4A300' : '#C62828'} />
             ))}
@@ -189,13 +189,13 @@ export function IndicadoresRiscosChart({ data = [] }: { data?: any[] }) {
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
           <XAxis dataKey="ri" tick={{ fill: '#94a3b8', fontSize: 10 }} angle={-30} textAnchor="end" height={60} />
           <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
-          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={tooltipStyle.labelStyle} formatter={(v: number) => [`${v}%`]} />
+          <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={tooltipStyle.labelStyle} formatter={(v: any) => [`${v}%`]} />
           <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
           <Bar name="Risco Logístico (%)" dataKey="Risco Logístico" fill="#C62828" radius={[4, 4, 0, 0]}>
-            <LabelList dataKey="Risco Logístico" position="top" formatter={(v: number) => `${v}%`} fill="#94a3b8" fontSize={10} />
+            <LabelList dataKey="Risco Logístico" position="top" formatter={(v: any) => `${v}%`} fill="#94a3b8" fontSize={10} />
           </Bar>
           <Bar name="Múltiplas Escolas (%)" dataKey="Múltiplas Escolas" fill="#F4A300" radius={[4, 4, 0, 0]}>
-            <LabelList dataKey="Múltiplas Escolas" position="top" formatter={(v: number) => `${v}%`} fill="#94a3b8" fontSize={10} />
+            <LabelList dataKey="Múltiplas Escolas" position="top" formatter={(v: any) => `${v}%`} fill="#94a3b8" fontSize={10} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
