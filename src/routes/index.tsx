@@ -12,6 +12,7 @@ import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasCha
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { ServidoresTable } from "@/components/dashboard/ServidoresTable";
 import { PoliticasIndicators } from "@/components/dashboard/PoliticasIndicators";
+import { PresentationMode, PresentationButton } from "@/components/dashboard/PresentationMode";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
 export const Route = createFileRoute("/")({
@@ -27,6 +28,7 @@ function Dashboard() {
   const [filtrosAtivos, setFiltrosAtivos] = useState({
     ri: "Todas", municipio: "Todos", regiao: "Todas", atividade: "Todas", vinculo: "Todos"
   });
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
 
   useEffect(() => {
     fetchRawData()
@@ -196,6 +198,7 @@ function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+             <PresentationButton onClick={() => setIsPresentationMode(true)} />
              <div className="text-right">
                 <div className="text-xs font-bold text-[#F5F7FA]">Gestão Estratégica</div>
                 <div className="text-[10px] text-slate-400">SEDUC-PA</div>
@@ -425,6 +428,107 @@ function Dashboard() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* MODO APRESENTAÇÃO */}
+      <AnimatePresence>
+        {isPresentationMode && (
+          <PresentationMode
+            isActive={isPresentationMode}
+            onClose={() => setIsPresentationMode(false)}
+            onTabChange={setActiveTab}
+            currentTab={activeTab}
+          >
+            {/* Conteúdo renderizado dentro do modo apresentação */}
+            {activeTab === 'executivo' && (
+              <div>
+                <h2 className="text-2xl font-bold text-[#F5F7FA] uppercase tracking-wide mb-8">Visão Executiva Macro</h2>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                  <div className="bg-[#132F4C] p-5 rounded-xl border-t-4 border-t-blue-500 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Força de Trabalho</h3>
+                        <Users size={16} className="text-blue-500" />
+                      </div>
+                      <div className="text-3xl font-black text-[#F5F7FA]">{totalCpfs.toLocaleString('pt-BR')} <span className="text-xs text-slate-400 font-normal">CPFs</span></div>
+                    </div>
+                    <div className="mt-4 text-[11px] text-slate-400 border-t border-white/5 pt-3 flex flex-col gap-1.5">
+                       <span className="flex justify-between text-slate-300 font-bold">Total MATVINC: <span className="text-white">{totalVinculosDocs.toLocaleString('pt-BR')}</span></span>
+                       <span className="flex justify-between text-slate-500">Efetivos ({pctEfetivos}%): <span className="text-white">{totalEfetivo.toLocaleString('pt-BR')}</span></span>
+                       <span className="flex justify-between text-slate-500">Temporários ({pctTemporarios}%): <span className="text-white">{totalTemp.toLocaleString('pt-BR')}</span></span>
+                    </div>
+                  </div>
+                  <div className="bg-[#132F4C] p-5 rounded-xl border-t-4 border-t-[#008F72] shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Atividade Curricular</h3>
+                        <BookOpen size={16} className="text-[#008F72]" />
+                      </div>
+                      <div className="text-3xl font-black text-[#F5F7FA]">{totalCurricular.toLocaleString('pt-BR')} <span className="text-xs text-slate-400 font-normal">Docs</span></div>
+                    </div>
+                    <div className="mt-4 text-[11px] text-slate-400 border-t border-white/5 pt-3 flex flex-col gap-1.5">
+                       <span className="flex justify-between text-slate-500">Na Matriz: <span className="text-[#008F72] font-bold">{naMatriz.toLocaleString('pt-BR')}</span></span>
+                       <span className="flex justify-between text-slate-500">Em Cód. Atividade: <span className="text-[#008F72] font-bold">{emCodigo.toLocaleString('pt-BR')}</span></span>
+                    </div>
+                  </div>
+                  <div className="bg-[#132F4C] p-5 rounded-xl border-t-4 border-t-[#F4A300] shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Fora de Sala</h3>
+                        <Briefcase size={16} className="text-[#F4A300]" />
+                      </div>
+                      <div className="text-3xl font-black text-[#F5F7FA]">{totalForaSala.toLocaleString('pt-BR')} <span className="text-xs text-slate-400 font-normal">Docs</span></div>
+                    </div>
+                    <div className="mt-4 text-[11px] text-slate-400 border-t border-white/5 pt-3 flex flex-col gap-1.5">
+                       <span className="flex justify-between text-slate-500">Gestão Escolar: <span className="text-[#F4A300]">{gestaoEscolar.toLocaleString('pt-BR')}</span></span>
+                       <span className="flex justify-between text-slate-500">Readaptados: <span className="text-[#F4A300]">{readaptados.toLocaleString('pt-BR')}</span></span>
+                       <span className="flex justify-between text-slate-500">Outras Atividades: <span className="text-[#F4A300]">{outrasAtividades.toLocaleString('pt-BR')}</span></span>
+                    </div>
+                  </div>
+                  <div className="bg-[#132F4C] p-5 rounded-xl border-t-4 border-t-[#C62828] shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Alertas e Cruzamentos</h3>
+                        <Target size={16} className="text-[#C62828]" />
+                      </div>
+                      <div className="text-3xl font-black text-[#F5F7FA]">{pctExclusiva}%</div>
+                      <span className="text-slate-500 uppercase tracking-wider text-[9px] mt-1 block">Escolas c/ lotação 100% exclusiva</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="col-span-1">
+                    <DistribuicaoChart data={distribuicaoGeral} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'planejamento' && (
+              <div>
+                <h2 className="text-2xl font-bold text-[#F5F7FA] uppercase tracking-wide mb-8">Indicadores Estratégicos</h2>
+                <div className="grid grid-cols-5 gap-4 mb-8">
+                  {kpisCorrigidos.map((k: any, i: number) => <KpiCard key={k.label} {...k} index={i} />)}
+                </div>
+                <div className="grid grid-cols-5 gap-4 mb-8">
+                  <div className="col-span-3"><ConformidadeChart data={conformidadeModalidade} /></div>
+                  <div className="col-span-2"><VinculoChart data={vinculoDispersao} /></div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'indicadores' && (
+              <div>
+                <h2 className="text-2xl font-bold text-[#F5F7FA] uppercase tracking-wide mb-8">Análise Avançada e Dispersão de Metas</h2>
+                <div className="mb-6"><MapaDispersao data={dispersaoMunicipios} /></div>
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                  <IndicadoresMetasChart data={dispersaoRI} />
+                  <IndicadoresRiscosChart data={radarRiscos} />
+                </div>
+              </div>
+            )}
+          </PresentationMode>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
