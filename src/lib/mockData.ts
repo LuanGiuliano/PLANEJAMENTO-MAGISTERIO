@@ -327,10 +327,10 @@ const executivo = {
       subtext: "Filtro Selecionado"
     },
     {
-      label: "Docentes em Regência",
+      label: "Atividade Curricular",
       value: cpfsAtivCurricular.size.toLocaleString('pt-BR'),
       status: "ok",
-      subtext: "Atividade Curricular"
+      subtext: "Agrupamento Curricular"
     },
     {
       label: "Diretores/Coordenadores",

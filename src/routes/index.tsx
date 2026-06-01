@@ -41,7 +41,7 @@ function Dashboard() {
   }, [rawData, filtrosAtivos]);
 
   const execExtras = useMemo(() => {
-    if (!rawData || rawData.length === 0) return { naMatriz: 0, gestoresEmSala: 0, readaptados: 0, regencia: 0 };
+    if (!rawData || rawData.length === 0) return { naMatriz: 0, gestoresEmSala: 0, readaptados: 0, regencia: 0, atividadeCurricular: 0 };
 
     const sanitize = (s: string) => String(s || '').toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
     const colunas = Object.keys(rawData[0]);
@@ -67,6 +67,7 @@ function Dashboard() {
     const cpfsGestoresEmSala = new Set();
     const cpfsReadaptados = new Set();
     const cpfsRegencia = new Set();
+    const cpfsAtivCurricular = new Set();
 
     rawData.forEach((linha: any) => {
       if (filtrosAtivos.ri !== 'Todas' && sanitize(linha[kRI] || '').replace(/^RI\s*/i, '') !== sanitize(filtrosAtivos.ri)) return;
@@ -89,9 +90,15 @@ function Dashboard() {
       const colGestao = sanitize(linha[kGestao] || '');
       const colRegencia = sanitize(linha[kRegencia] || '');
 
-      if (linhaCompleta.includes('CURRICULA') || colRegencia.includes('SIM') || linhaCompleta.includes('MATRIZ')) {
-        cpfsRegencia.add(chaveUnica);
+      // Atividade Curricular: docentes com agrupamento curricular
+      if (linhaCompleta.includes('CURRICULA') || linhaCompleta.includes('MATRIZ')) {
+        cpfsAtivCurricular.add(chaveUnica);
         if (linhaCompleta.includes('MATRIZ')) cpfsMatriz.add(chaveUnica);
+      }
+
+      // Regência de Classe: docentes efetivamente em sala
+      if (colRegencia.includes('SIM')) {
+        cpfsRegencia.add(chaveUnica);
       }
 
       if (colGestao.includes('SIM') && colRegencia.includes('SIM') && !colReadap.includes('SIM')) {
@@ -103,7 +110,8 @@ function Dashboard() {
       naMatriz: cpfsMatriz.size,
       gestoresEmSala: cpfsGestoresEmSala.size,
       readaptados: cpfsReadaptados.size,
-      regencia: cpfsRegencia.size
+      regencia: cpfsRegencia.size,
+      atividadeCurricular: cpfsAtivCurricular.size
     };
   }, [rawData, filtrosAtivos]);
 
@@ -149,8 +157,8 @@ function Dashboard() {
   const pctEfetivos = totalVinculosDocs > 0 ? ((totalEfetivo / totalVinculosDocs) * 100).toFixed(1) : "0.0";
   const pctTemporarios = totalVinculosDocs > 0 ? ((totalTemp / totalVinculosDocs) * 100).toFixed(1) : "0.0";
 
-  // Usando o valor corrigido da Regência
-  const totalCurricular = execExtras.regencia; 
+  // Usando o valor correto de Atividade Curricular
+  const totalCurricular = execExtras.atividadeCurricular; 
   const naMatriz = execExtras.naMatriz;
   const emCodigo = Math.max(0, totalCurricular - naMatriz); 
 
@@ -166,7 +174,7 @@ function Dashboard() {
   // Atualizando os KPIs da Aba Estratégica para refletir a correção
   const kpisCorrigidos = kpis.map((k: any) => {
     if (k.label.includes('Readaptados')) return { ...k, value: execExtras.readaptados.toLocaleString('pt-BR') };
-    if (k.label.includes('Regência')) return { ...k, value: execExtras.regencia.toLocaleString('pt-BR') };
+    if (k.label.includes('Curricular')) return { ...k, value: execExtras.atividadeCurricular.toLocaleString('pt-BR') };
     return k;
   });
 
