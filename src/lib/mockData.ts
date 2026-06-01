@@ -128,8 +128,9 @@ export const processDashboardData = (rawData: any[], filtrosAtivos: any = {}) =>
     const municipioAtual = String(linha[kMun] || '').toUpperCase().trim();
     
     // Cálculo de Escolas 100% unicas
-    const escolaNome = String(linha[kEscola] || '').toUpperCase();
-    if (escolaNome && escolaNome !== '-' && escolaNome !== 'UNDEFINED' && isDocente) {
+    const escolaNome = String(linha[kSetorCargo] || '').toUpperCase();
+    const isEscolaVal = String(linha[kEscola] || '').toUpperCase();
+    if (escolaNome && escolaNome !== '-' && escolaNome !== 'UNDEFINED' && isDocente && isEscolaVal === 'SIM') {
       if (!escolaMap.has(escolaNome)) escolaMap.set(escolaNome, { total: 0, apenas1: 0 });
       const e = escolaMap.get(escolaNome)!;
       e.total++;
