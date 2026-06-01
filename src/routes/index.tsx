@@ -57,11 +57,11 @@ function Dashboard() {
     const kServ = findCol(['SERVIDOR', 'NOME']);
     const kSubcat = findCol(['SUBCATEGORIA', 'CATEGORIA', 'CARGO']);
     const kGestao = findCol(['GESTAOESCOLAR', 'GESTAO']);
-    const kReadap = findCol(['READPATADO', 'READAPTADO']);
+    const kReadap = findCol(['READAPTADO', 'READPATADO']);
     const kRegencia = findCol(['REGENCIADECLASSE', 'REGENCIA']);
-    const kRI = findCol(['REGIAODEINTEGRACAO', 'INTEGRACAO']);
-    const kMun = findCol(['MUNICIPIOLOT', 'MUNICIPIO']);
-    const kVinc = findCol(['TIPOVINCULO'], ['MATVINC']);
+    const kRI = findCol(['REEGIAODEINTEGRACAO', 'REGIAODEINTEGRACAO', 'INTEGRACAO']);
+    const kMun = findCol(['MUNICIPIOCARGO', 'MUNICIPIO']);
+    const kVinc = findCol(['TIPOVINCULO'], ['MATVINC', 'VINCULOLOT']);
 
     const cpfsMatriz = new Set();
     const cpfsGestoresEmSala = new Set();

@@ -36,19 +36,24 @@ export const processDashboardData = (rawData: any[], filtrosAtivos: any = {}) =>
   const kMun = findCol(['MUNICIPIOCARGO', 'MUNICIPIO']);
   const kRI = findCol(['REEGIAODEINTEGRACAO', 'REGIAODEINTEGRACAO', 'INTEGRACAO']); 
   const kReg = findCol(['REGIAOMETROPOLITANA', 'METROPOLITANA']); 
-  const kVinc = findCol(['TIPOVINCULO'], ['MATVINC', 'MAT', 'VINCULOLOT']); 
+  const kVinc = findCol(['TIPOVINCULO'], ['MATVINC', 'VINCULOLOT']); 
   const kAtivFiltro = findCol(['TIPODEATIVIDADE']); 
   const kAgrup = findCol(['AGRUPAMENTODEATIVIDADES', 'AGRUPAMENTO']); 
   const kLotado = findCol(['LOTADO']);
   const kGestao = findCol(['GESTAOESCOLAR', 'GESTAO']);
-  const kReadap = findCol(['READPATADO', 'READAPTADO']);
+  const kReadap = findCol(['READAPTADO', 'READPATADO']);
   const kSubcat = findCol(['SUBCATEGORIA', 'CATEGORIA', 'CARGO']);
-  const kQtdEscolas = findCol(['QTDESCOLAS', 'QTD ESCOLAS']);
+  const kQtdEscolas = findCol(['QTDESCOLAS']);
   
-  // Novas colunas mapeadas para a Meta 3.3 profunda do Claude
-  const kRegencia = findCol(['REGENCIA']);
+  // Colunas para indicadores avançados (Meta 3.3)
+  const kRegencia = findCol(['REGENCIADECLASSE', 'REGENCIA']);
   const kQtdVinculos = findCol(['QUANTDEVINCULOS', 'QUANTIDADEDEVINCULOS']);
-  const kEscola = findCol(['SETORCARGO', 'ESCOLA', 'LOTACAO']);
+  const kEscola = findCol(['ESCOLA'], ['GESTAO', 'AGRUPAMENTO', 'QTD']);
+  const kVinculo = findCol(['VINCULO'], ['TIPO', 'MATVINC']);
+  const kAtivCurr = findCol(['ATIVIDADECURRICULA', 'ATIVIDADECURRICULAR']);
+  const kSetorCargo = findCol(['SETORCARGO'], ['COD']);
+  const kSetorLot = findCol(['SETORLOT'], ['COD']);
+  const kMunLot = findCol(['MUNICIPIOLOT']);
 
   const uniqueMunicipios = new Set<string>();
   const uniqueRIs = new Set<string>();
@@ -138,7 +143,7 @@ export const processDashboardData = (rawData: any[], filtrosAtivos: any = {}) =>
       if (!mapDocentes.has(chaveUnica)) {
         linha._qtdEscolas = qtdEscolas; 
         linha._municipios = new Set();
-        const colAtivCurr = String(linha['ATIVIDADE CURRICULA'] || linha['ATIVIDADECURRICULAR'] || '').toUpperCase();
+        const colAtivCurr = String(linha[kAtivCurr] || '').toUpperCase();
         linha._isCurricular = ehCurricular || colAgrup.includes('CURRICULAR') || colAtivCurr === 'SIM';
         linha._isRegencia = String(linha[kRegencia] || '').toUpperCase().includes('SIM');
         
@@ -492,13 +497,13 @@ const executivo = {
 
   tabelas: {
     geral: baseFiltrada,
-    cedidos: baseFiltrada.filter((l: any) => String(l['VINCULO'] || '').toUpperCase().includes('CEDIDO')),
+    cedidos: baseFiltrada.filter((l: any) => String(l[kVinculo] || '').toUpperCase().includes('CEDIDO')),
     movimentados: baseFiltrada.filter((l: any) => {
-      const c = String(l['SETOR_CARGO'] || '').toUpperCase().trim();
-      const lot = String(l['SETOR_LOT'] || '').toUpperCase().trim();
+      const c = String(l[kSetorCargo] || '').toUpperCase().trim();
+      const lot = String(l[kSetorLot] || '').toUpperCase().trim();
       return c && lot && c !== lot;
     }),
-    readaptados: baseFiltrada.filter((l: any) => String(l['readpatado'] || l['READPATADO'] || '').toUpperCase().includes('SIM'))
+    readaptados: baseFiltrada.filter((l: any) => String(l[kReadap] || '').toUpperCase().includes('SIM'))
   }
 };
 };
