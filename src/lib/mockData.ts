@@ -498,7 +498,7 @@ const executivo = {
 
   tabelas: {
     geral: baseFiltrada,
-    cedidos: baseFiltrada.filter((l: any) => String(l[kVinculo] || '').toUpperCase().includes('CEDIDO')),
+    cedidos: baseFiltrada.filter((l: any) => Object.values(l).some((v: any) => String(v).toUpperCase().includes('CEDIDO'))),
     movimentados: baseFiltrada.filter((l: any) => {
       const c = String(l[kSetorCargo] || '').toUpperCase().trim();
       const lot = String(l[kSetorLot] || '').toUpperCase().trim();
