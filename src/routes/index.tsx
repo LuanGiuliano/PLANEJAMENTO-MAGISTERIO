@@ -8,7 +8,7 @@ import {
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { FilterDropdown } from "@/components/dashboard/FilterDropdown";
 import { KpiCard } from "@/components/dashboard/KpiCard";
-import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart, AtividadeCurricularChart } from "@/components/dashboard/Charts";
+import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart, AtividadeCurricularChart, CedidosImpactChart } from "@/components/dashboard/Charts";
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { ServidoresTable } from "@/components/dashboard/ServidoresTable";
 import { PresentationMode, PresentationButton } from "@/components/dashboard/PresentationMode";
@@ -431,12 +431,17 @@ function Dashboard() {
                         index={2}
                       />
                     </div>
-                  );
+                    
+                    <div className="flex-1 min-h-[300px] flex flex-col md:flex-row gap-4">
+                      <div className="w-full md:w-[350px] shrink-0">
+                        <CedidosImpactChart totalCedidos={totalCedidos} totalBase={totalServidores} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
+                      </div>
+                    </div>
+                  </>;
                 })()}
-                
-                <div className="flex-1 min-h-[300px]">
-                  <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
-                </div>
               </motion.div>
             )}
 

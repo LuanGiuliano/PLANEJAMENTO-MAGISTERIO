@@ -235,3 +235,53 @@ export function AtividadeCurricularChart({ naMatriz, emCodigo }: { naMatriz: num
     </ChartCard>
   );
 }
+ e x p o r t   f u n c t i o n   C e d i d o s I m p a c t C h a r t ( {   t o t a l C e d i d o s ,   t o t a l B a s e   } :   {   t o t a l C e d i d o s :   n u m b e r ,   t o t a l B a s e :   n u m b e r   } )   { 
+     c o n s t   a t i v o s   =   M a t h . m a x ( 0 ,   t o t a l B a s e   -   t o t a l C e d i d o s ) ; 
+     
+     c o n s t   f o r m a t t e d D a t a   =   [ 
+         {   n a m e :   ' C e d i d o s   ( F o r a   d o   Ó r g ã o ) ' ,   v a l u e :   t o t a l C e d i d o s ,   c o l o r :   ' # F 4 A 3 0 0 '   } , 
+         {   n a m e :   ' A t i v o s   n a   S E D U C ' ,   v a l u e :   a t i v o s ,   c o l o r :   ' # 0 0 8 F 7 2 '   } 
+     ] ; 
+ 
+     c o n s t   c e d i d o s P c t   =   t o t a l B a s e   >   0   ?   ( ( t o t a l C e d i d o s   /   t o t a l B a s e )   *   1 0 0 ) . t o F i x e d ( 1 )   :   " 0 . 0 " ; 
+ 
+     r e t u r n   ( 
+         < C h a r t C a r d   t i t l e = " I m p a c t o   n o   Q u a d r o   G e r a l "   s u b t i t l e = " S e r v i d o r e s   C e d i d o s   v s   A t i v o s "   d e l a y = { 0 . 1 } > 
+             < d i v   c l a s s N a m e = " r e l a t i v e " > 
+                 < R e s p o n s i v e C o n t a i n e r   w i d t h = " 1 0 0 % "   h e i g h t = { 2 3 0 } > 
+                     < P i e C h a r t > 
+                         < P i e 
+                             d a t a = { f o r m a t t e d D a t a } 
+                             d a t a K e y = " v a l u e " 
+                             i n n e r R a d i u s = { 7 5 } 
+                             o u t e r R a d i u s = { 9 5 } 
+                             p a d d i n g A n g l e = { 2 } 
+                             s t r o k e = " n o n e " 
+                             a n i m a t i o n D u r a t i o n = { 9 0 0 } 
+                         > 
+                             { f o r m a t t e d D a t a . m a p ( ( d ,   i n d e x )   = >   < C e l l   k e y = { i n d e x }   f i l l = { d . c o l o r }   / > ) } 
+                         < / P i e > 
+                         < T o o l t i p   c o n t e n t S t y l e = { {   b a c k g r o u n d :   ' # 1 0 2 A 4 3 ' ,   b o r d e r :   ' 1 p x   s o l i d   r g b a ( 2 5 5 , 2 5 5 , 2 5 5 , 0 . 1 ) ' ,   b o r d e r R a d i u s :   6 ,   c o l o r :   ' # F 5 F 7 F A ' ,   f o n t S i z e :   ' 1 2 p x ' ,   f o n t W e i g h t :   6 0 0   } }   l a b e l S t y l e = { {   c o l o r :   ' # F 4 A 3 0 0 ' ,   f o n t W e i g h t :   ' b o l d ' ,   m a r g i n B o t t o m :   ' 4 p x '   } }   / > 
+                     < / P i e C h a r t > 
+                 < / R e s p o n s i v e C o n t a i n e r > 
+                 < d i v   c l a s s N a m e = " p o i n t e r - e v e n t s - n o n e   a b s o l u t e   i n s e t - 0   f l e x   f l e x - c o l   i t e m s - c e n t e r   j u s t i f y - c e n t e r " > 
+                     < s p a n   c l a s s N a m e = " t e x t - 3 x l   f o n t - b l a c k   t e x t - [ # F 5 F 7 F A ] " > { c e d i d o s P c t } % < / s p a n > 
+                     < s p a n   c l a s s N a m e = " t e x t - [ 1 0 p x ]   t e x t - s l a t e - 4 0 0   m t - 1   u p p e r c a s e   t r a c k i n g - w i d e s t   f o n t - b o l d " > C e d i d o s < / s p a n > 
+                 < / d i v > 
+             < / d i v > 
+             < d i v   c l a s s N a m e = " m t - 5   f l e x   f l e x - c o l   g a p - 2 . 5   p x - 2 " > 
+                 { f o r m a t t e d D a t a . m a p ( ( d ,   i n d e x )   = >   ( 
+                     < d i v   k e y = { i n d e x }   c l a s s N a m e = " f l e x   i t e m s - c e n t e r   j u s t i f y - b e t w e e n   b o r d e r - t   b o r d e r - w h i t e / 5   p t - 2   f i r s t : b o r d e r - 0   f i r s t : p t - 0 " > 
+                         < d i v   c l a s s N a m e = " f l e x   i t e m s - c e n t e r   g a p - 2 . 5 " > 
+                             < s p a n   c l a s s N a m e = " h - 2 . 5   w - 2 . 5   r o u n d e d - s m "   s t y l e = { {   b a c k g r o u n d :   d . c o l o r   } }   / > 
+                             < s p a n   c l a s s N a m e = " t e x t - x s   f o n t - b o l d   t e x t - [ # F 5 F 7 F A ]   u p p e r c a s e " > { d . n a m e } < / s p a n > 
+                         < / d i v > 
+                         < s p a n   c l a s s N a m e = " t e x t - x s   f o n t - b o l d   t e x t - s l a t e - 4 0 0 " > { d . v a l u e . t o L o c a l e S t r i n g ( ' p t - B R ' ) } < / s p a n > 
+                     < / d i v > 
+                 ) ) } 
+             < / d i v > 
+         < / C h a r t C a r d > 
+     ) ; 
+ } 
+  
+ 
