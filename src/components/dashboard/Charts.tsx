@@ -202,3 +202,36 @@ export function IndicadoresRiscosChart({ data = [] }: { data?: any[] }) {
     </ChartCard>
   );
 }
+
+export function AtividadeCurricularChart({ naMatriz, emCodigo }: { naMatriz: number, emCodigo: number }) {
+  const data = [
+    { name: 'Na Matriz', value: naMatriz, fill: '#008F72' },
+    { name: 'Em Cód. Atividade', value: emCodigo, fill: '#F4A300' }
+  ];
+  const total = naMatriz + emCodigo;
+  
+  return (
+    <ChartCard title="Atividade Curricular" subtitle="Na Matriz vs Em Cód. Atividade" delay={0.4} className="h-full flex flex-col">
+      <div className="flex-1 flex flex-col justify-center">
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={data} layout="vertical" margin={{ top: 10, right: 40, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+            <XAxis type="number" hide />
+            <YAxis type="category" dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} width={120} axisLine={false} tickLine={false} />
+            <Tooltip cursor={{ fill: 'rgba(255,255,255,0.02)' }} contentStyle={tooltipStyle.contentStyle} labelStyle={{ display: 'none' }} formatter={(v: any) => [v.toLocaleString('pt-BR'), 'Docentes']} />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={32}>
+              <LabelList dataKey="value" position="right" formatter={(v: any) => v.toLocaleString('pt-BR')} fill="#F5F7FA" fontSize={12} fontWeight="bold" />
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
+        <div className="text-xs text-slate-400 font-bold uppercase tracking-widest">Total em Ativ. Curricular</div>
+        <div className="text-xl font-black text-[#F5F7FA]">{total.toLocaleString('pt-BR')}</div>
+      </div>
+    </ChartCard>
+  );
+}

@@ -8,7 +8,7 @@ import {
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { FilterDropdown } from "@/components/dashboard/FilterDropdown";
 import { KpiCard } from "@/components/dashboard/KpiCard";
-import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart } from "@/components/dashboard/Charts";
+import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart, AtividadeCurricularChart } from "@/components/dashboard/Charts";
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { ServidoresTable } from "@/components/dashboard/ServidoresTable";
 import { PoliticasIndicators } from "@/components/dashboard/PoliticasIndicators";
@@ -304,114 +304,7 @@ function Dashboard() {
                     <DistribuicaoChart data={distribuicaoGeral} />
                   </div>
                   <div className="col-span-1">
-                    <div className="bg-[#132F4C] p-6 rounded-xl border border-white/5 shadow-sm h-full flex flex-col">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-sm font-bold text-[#F5F7FA] uppercase tracking-wider flex items-center gap-2">
-                          <Target size={16} className="text-blue-400" />
-                          Resumo de Indicadores
-                        </h3>
-                        <span className="text-[10px] font-bold bg-blue-500/10 text-blue-400 px-2 py-1 rounded border border-blue-500/20 uppercase">
-                          Painel de Dados
-                        </span>
-                      </div>
-                      
-                      <div className="flex-1 flex flex-col gap-5">
-                        {/* Bloco 1: Lotação */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-[#0A1929] p-4 rounded-lg border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-                            <div className="text-[10px] text-slate-400 uppercase font-semibold mb-1">Total de Professores (CPFs)</div>
-                            <div className="text-2xl font-black text-white">{totalCpfs.toLocaleString('pt-BR')}</div>
-                          </div>
-                          <div className="bg-[#0A1929] p-4 rounded-lg border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                            <div className="text-[10px] text-slate-400 uppercase font-semibold mb-1">Total de Vínculos (MATVINC)</div>
-                            <div className="text-2xl font-black text-white">{totalVinculosDocs.toLocaleString('pt-BR')}</div>
-                            <div className="mt-2 text-[10px] text-slate-500 flex justify-between">
-                              <span>Efetivos: <strong className="text-slate-300">{totalEfetivo.toLocaleString('pt-BR')}</strong></span>
-                              <span>Temp: <strong className="text-slate-300">{totalTemp.toLocaleString('pt-BR')}</strong></span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Bloco 2: Subcategorias */}
-                        <div className="bg-[#0A1929] rounded-lg border border-white/5 p-4 flex-1">
-                          <div className="text-[11px] text-slate-400 uppercase font-semibold mb-4 border-b border-white/5 pb-2">Distribuição por Subcategoria</div>
-                          
-                          <div className="space-y-3">
-                            {/* Atividade Curricular */}
-                            <div>
-                              <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#008F72]"></div>
-                                  Atividade Curricular
-                                </span>
-                                <span className="font-bold text-[#008F72]">{totalCurricular.toLocaleString('pt-BR')}</span>
-                              </div>
-                              <div className="flex gap-4 ml-3.5 pl-2 border-l border-white/10 mt-1">
-                                <div className="flex flex-col">
-                                  <span className="text-[10px] text-slate-500">Na Matriz</span>
-                                  <span className="text-xs font-semibold text-slate-300">{naMatriz.toLocaleString('pt-BR')}</span>
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-[10px] text-slate-500">Em Cód. Atividade</span>
-                                  <span className="text-xs font-semibold text-slate-300">{emCodigo.toLocaleString('pt-BR')}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Gestão Escolar */}
-                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                              <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#F4A300]"></div>
-                                Gestão Escolar
-                              </span>
-                              <span className="font-bold text-white">{gestaoEscolar.toLocaleString('pt-BR')}</span>
-                            </div>
-
-                            {/* Readaptados */}
-                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                              <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#F4A300]/70"></div>
-                                Readaptados
-                              </span>
-                              <span className="font-bold text-white">{readaptados.toLocaleString('pt-BR')}</span>
-                            </div>
-
-                            {/* Outras Atividades */}
-                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                              <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
-                                Outras Atividades
-                              </span>
-                              <span className="font-bold text-white">{outrasAtividades.toLocaleString('pt-BR')}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Bloco 3: Alertas */}
-                        <div className="grid grid-cols-2 gap-3">
-                           <div className="bg-[#0A1929] p-3 rounded-lg border border-white/5 flex items-center justify-between group hover:border-white/10 transition-colors">
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-slate-400 uppercase font-semibold leading-tight">Lotação Exclusiva<br/>(Escolas 100%)</span>
-                                <span className="text-lg font-bold text-white mt-1">{pctExclusiva}%</span>
-                              </div>
-                              <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                <MapPin size={14} className="text-blue-400" />
-                              </div>
-                           </div>
-                           <div className="bg-[#C62828]/10 p-3 rounded-lg border border-[#C62828]/20 flex items-center justify-between group hover:border-[#C62828]/40 transition-colors">
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-[#C62828] uppercase font-semibold leading-tight">Gestores em Sala<br/>(Não readaptados)</span>
-                                <span className="text-lg font-bold text-[#C62828] mt-1">{gestoresEmSala}</span>
-                              </div>
-                              <div className="h-8 w-8 rounded-full bg-[#C62828]/20 flex items-center justify-center border border-[#C62828]/30">
-                                <AlertTriangle size={14} className="text-[#C62828]" />
-                              </div>
-                           </div>
-                        </div>
-                      </div>
-                    </div>
+                    <AtividadeCurricularChart naMatriz={naMatriz} emCodigo={emCodigo} />
                   </div>
                 </div>
               </motion.div>
@@ -610,107 +503,7 @@ function Dashboard() {
                     <DistribuicaoChart data={distribuicaoGeral} />
                   </div>
                   <div className="col-span-1">
-                    <div className="bg-[#132F4C] p-6 rounded-xl border border-white/5 shadow-sm h-full flex flex-col">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-sm font-bold text-[#F5F7FA] uppercase tracking-wider flex items-center gap-2">
-                          <Target size={16} className="text-blue-400" />
-                          Resumo de Indicadores
-                        </h3>
-                        <span className="text-[10px] font-bold bg-blue-500/10 text-blue-400 px-2 py-1 rounded border border-blue-500/20 uppercase">
-                          Painel de Dados
-                        </span>
-                      </div>
-                      
-                      <div className="flex-1 flex flex-col gap-5">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-[#0A1929] p-4 rounded-lg border border-white/5 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-                            <div className="text-[10px] text-slate-400 uppercase font-semibold mb-1">Total de Professores (CPFs)</div>
-                            <div className="text-2xl font-black text-white">{totalCpfs.toLocaleString('pt-BR')}</div>
-                          </div>
-                          <div className="bg-[#0A1929] p-4 rounded-lg border border-white/5 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                            <div className="text-[10px] text-slate-400 uppercase font-semibold mb-1">Total de Vínculos (MATVINC)</div>
-                            <div className="text-2xl font-black text-white">{totalVinculosDocs.toLocaleString('pt-BR')}</div>
-                            <div className="mt-2 text-[10px] text-slate-500 flex justify-between">
-                              <span>Efetivos: <strong className="text-slate-300">{totalEfetivo.toLocaleString('pt-BR')}</strong></span>
-                              <span>Temp: <strong className="text-slate-300">{totalTemp.toLocaleString('pt-BR')}</strong></span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-[#0A1929] rounded-lg border border-white/5 p-4 flex-1">
-                          <div className="text-[11px] text-slate-400 uppercase font-semibold mb-4 border-b border-white/5 pb-2">Distribuição por Subcategoria</div>
-                          
-                          <div className="space-y-3">
-                            <div>
-                              <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#008F72]"></div>
-                                  Atividade Curricular
-                                </span>
-                                <span className="font-bold text-[#008F72]">{totalCurricular.toLocaleString('pt-BR')}</span>
-                              </div>
-                              <div className="flex gap-4 ml-3.5 pl-2 border-l border-white/10 mt-1">
-                                <div className="flex flex-col">
-                                  <span className="text-[10px] text-slate-500">Na Matriz</span>
-                                  <span className="text-xs font-semibold text-slate-300">{naMatriz.toLocaleString('pt-BR')}</span>
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-[10px] text-slate-500">Em Cód. Atividade</span>
-                                  <span className="text-xs font-semibold text-slate-300">{emCodigo.toLocaleString('pt-BR')}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                              <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#F4A300]"></div>
-                                Gestão Escolar
-                              </span>
-                              <span className="font-bold text-white">{gestaoEscolar.toLocaleString('pt-BR')}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                              <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#F4A300]/70"></div>
-                                Readaptados
-                              </span>
-                              <span className="font-bold text-white">{readaptados.toLocaleString('pt-BR')}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                              <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
-                                Outras Atividades
-                              </span>
-                              <span className="font-bold text-white">{outrasAtividades.toLocaleString('pt-BR')}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                           <div className="bg-[#0A1929] p-3 rounded-lg border border-white/5 flex items-center justify-between">
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-slate-400 uppercase font-semibold leading-tight">Lotação Exclusiva<br/>(Escolas 100%)</span>
-                                <span className="text-lg font-bold text-white mt-1">{pctExclusiva}%</span>
-                              </div>
-                              <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                <MapPin size={14} className="text-blue-400" />
-                              </div>
-                           </div>
-                           <div className="bg-[#C62828]/10 p-3 rounded-lg border border-[#C62828]/20 flex items-center justify-between">
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-[#C62828] uppercase font-semibold leading-tight">Gestores em Sala<br/>(Não readaptados)</span>
-                                <span className="text-lg font-bold text-[#C62828] mt-1">{gestoresEmSala}</span>
-                              </div>
-                              <div className="h-8 w-8 rounded-full bg-[#C62828]/20 flex items-center justify-center border border-[#C62828]/30">
-                                <AlertTriangle size={14} className="text-[#C62828]" />
-                              </div>
-                           </div>
-                        </div>
-                      </div>
-                    </div>
+                    <AtividadeCurricularChart naMatriz={naMatriz} emCodigo={emCodigo} />
                   </div>
                 </div>
               </div>
