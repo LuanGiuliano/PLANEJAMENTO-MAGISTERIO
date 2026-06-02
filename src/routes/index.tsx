@@ -402,7 +402,36 @@ function Dashboard() {
             )}
 
             {activeTab === 'cedidos' && (
-              <motion.div key="cedidos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col">
+              <motion.div key="cedidos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col gap-4">
+                {(() => {
+                  const totalCedidos = tabelas.cedidos.length;
+                  const totalServidores = tabelas.geral.length || 1; 
+                  const percentual = ((totalCedidos / totalServidores) * 100).toFixed(2);
+                  const isCritico = parseFloat(percentual) > 5.0;
+
+                  return (
+                    <div className="grid grid-cols-3 gap-4 mb-2 shrink-0">
+                      <div className="bg-[#132F4C] p-5 rounded-xl border-t-4 border-t-blue-500 shadow-sm flex flex-col justify-center">
+                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total de Cedidos</h3>
+                        <div className="text-3xl font-black text-[#F5F7FA]">{totalCedidos.toLocaleString('pt-BR')}</div>
+                      </div>
+
+                      <div className="bg-[#132F4C] p-5 rounded-xl border-t-4 border-t-[#F4A300] shadow-sm flex flex-col justify-center">
+                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">% sobre Total de Servidores</h3>
+                        <div className="text-3xl font-black text-[#F5F7FA]">{percentual}%</div>
+                        <span className="text-[10px] text-slate-500 mt-1">Total Base: {totalServidores.toLocaleString('pt-BR')}</span>
+                      </div>
+
+                      <div className={`p-5 rounded-xl border-t-4 shadow-sm flex flex-col justify-center ${isCritico ? 'border-t-[#C62828] bg-[#C62828]/10' : 'border-t-[#008F72] bg-[#008F72]/10'}`}>
+                        <h3 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${isCritico ? 'text-[#C62828]' : 'text-[#008F72]'}`}>Status de Risco</h3>
+                        <div className={`text-2xl font-black ${isCritico ? 'text-[#C62828]' : 'text-[#008F72]'}`}>
+                          {isCritico ? 'ESTADO CRÍTICO (> 5%)' : 'NORMAL (≤ 5%)'}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+                
                 <div className="flex-1 min-h-[300px]">
                   <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
                 </div>
