@@ -408,39 +408,41 @@ function Dashboard() {
                   const isCritico = parseFloat(percentual) > 5.0;
 
                   return (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0 mt-2">
-                      <KpiCard 
-                        label="Total de Cedidos"
-                        value={totalCedidos.toLocaleString('pt-BR')}
-                        status="warn"
-                        subtext="Servidores atuando em outro órgão"
-                        index={0}
-                      />
-                      <KpiCard 
-                        label="% sobre Total Base"
-                        value={`${percentual}%`}
-                        status={isCritico ? "crit" : "ok"}
-                        subtext={`Total Base: ${totalServidores.toLocaleString('pt-BR')}`}
-                        index={1}
-                      />
-                      <KpiCard 
-                        label="Alerta de Limite"
-                        value={isCritico ? "CRÍTICO" : "NORMAL"}
-                        status={isCritico ? "crit" : "ok"}
-                        subtext={isCritico ? "Acima do teto ideal de 5%" : "Dentro da margem saudável (≤ 5%)"}
-                        index={2}
-                      />
-                    </div>
-                    
-                    <div className="flex-1 min-h-[300px] flex flex-col md:flex-row gap-4">
-                      <div className="w-full md:w-[350px] shrink-0">
-                        <CedidosImpactChart totalCedidos={totalCedidos} totalBase={totalServidores} />
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0 mt-2">
+                        <KpiCard 
+                          label="Total de Cedidos"
+                          value={totalCedidos.toLocaleString('pt-BR')}
+                          status="warn"
+                          subtext="Servidores atuando em outro órgão"
+                          index={0}
+                        />
+                        <KpiCard 
+                          label="% sobre Total Base"
+                          value={`${percentual}%`}
+                          status={isCritico ? "crit" : "ok"}
+                          subtext={`Total Base: ${totalServidores.toLocaleString('pt-BR')}`}
+                          index={1}
+                        />
+                        <KpiCard 
+                          label="Alerta de Limite"
+                          value={isCritico ? "CRÍTICO" : "NORMAL"}
+                          status={isCritico ? "crit" : "ok"}
+                          subtext={isCritico ? "Acima do teto ideal de 5%" : "Dentro da margem saudável (≤ 5%)"}
+                          index={2}
+                        />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
+                      
+                      <div className="flex-1 min-h-[300px] flex flex-col md:flex-row gap-4">
+                        <div className="w-full md:w-[350px] shrink-0">
+                          <CedidosImpactChart totalCedidos={totalCedidos} totalBase={totalServidores} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
+                        </div>
                       </div>
-                    </div>
-                  </>;
+                    </>
+                  );
                 })()}
               </motion.div>
             )}
