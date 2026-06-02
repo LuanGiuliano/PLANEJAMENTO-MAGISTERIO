@@ -11,7 +11,6 @@ import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ConformidadeChart, VinculoChart, DistribuicaoChart, IndicadoresMetasChart, IndicadoresRiscosChart, AtividadeCurricularChart } from "@/components/dashboard/Charts";
 import { MapaDispersao } from "@/components/dashboard/MapaDispersao";
 import { ServidoresTable } from "@/components/dashboard/ServidoresTable";
-import { PoliticasIndicators } from "@/components/dashboard/PoliticasIndicators";
 import { PresentationMode, PresentationButton } from "@/components/dashboard/PresentationMode";
 import { fetchRawData, processDashboardData } from "@/lib/mockData"; 
 
@@ -397,7 +396,6 @@ function Dashboard() {
                 <div className="flex-1 min-h-[300px]">
                   <ServidoresTable data={tabelas.geral} title="Lotação Geral de Servidores" />
                 </div>
-                <PoliticasIndicators data={tabelas.geral} />
               </motion.div>
             )}
 
@@ -439,7 +437,6 @@ function Dashboard() {
                 <div className="flex-1 min-h-[300px]">
                   <ServidoresTable data={tabelas.cedidos} title="Servidores Cedidos" />
                 </div>
-                <PoliticasIndicators data={tabelas.cedidos} />
               </motion.div>
             )}
 
@@ -448,7 +445,6 @@ function Dashboard() {
                 <div className="flex-1 min-h-[300px]">
                   <ServidoresTable data={tabelas.movimentados} title="Movimentações (Setor de Cargo Diferente do Setor Lotado)" />
                 </div>
-                <PoliticasIndicators data={tabelas.movimentados} />
               </motion.div>
             )}
 
@@ -457,7 +453,6 @@ function Dashboard() {
                 <div className="flex-1 min-h-[300px]">
                   <ServidoresTable data={tabelas.readaptados} title="Servidores Readaptados" />
                 </div>
-                <PoliticasIndicators data={tabelas.readaptados} />
               </motion.div>
             )}
 
