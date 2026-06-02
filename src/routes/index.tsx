@@ -402,8 +402,18 @@ function Dashboard() {
             {activeTab === 'cedidos' && (
               <motion.div key="cedidos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-[calc(100vh-220px)] flex flex-col gap-4">
                 {(() => {
-                  const totalCedidos = tabelas.cedidos.length;
-                  const totalServidores = tabelas.geral.length || 1; 
+                  const getUniqueCount = (data: any[]) => {
+                    const unique = new Set();
+                    data.forEach(l => {
+                      let cpf = l.CPF || l.cpf;
+                      let chave = (cpf && String(cpf).trim().length > 3) ? cpf : l.SERVIDOR;
+                      if (chave) unique.add(chave);
+                    });
+                    return unique.size;
+                  };
+
+                  const totalCedidos = getUniqueCount(tabelas.cedidos);
+                  const totalServidores = getUniqueCount(tabelas.geral) || 1;
                   const percentual = ((totalCedidos / totalServidores) * 100).toFixed(2);
                   const isCritico = parseFloat(percentual) > 5.0;
 
